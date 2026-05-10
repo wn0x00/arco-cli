@@ -92,6 +92,15 @@ async function runTemplateHook(
         `  Underlying error: ${(err as Error).message || String(err)}`
     );
   }
+
+  // Templates routinely shell out to `npm run ...` without setting `cwd`,
+  // expecting their own package directory to be the working directory.
+  // Hooks live two levels deep inside the package (e.g.
+  // `<pkg>/.arco-cli/init.js`, `<pkg>/hook/after-init.js`), so the package
+  // root is always two parents up from the hook path.
+  const templatePackageRoot = path.dirname(path.dirname(hookPath));
+  const previousCwd = process.cwd();
+  process.chdir(templatePackageRoot);
   try {
     return await hook(hookArgs);
   } catch (err) {
@@ -101,6 +110,12 @@ async function runTemplateHook(
         `  This is likely a bug in the template package, not arco-cli.\n` +
         `  Underlying error: ${(err as Error).message || String(err)}`
     );
+  } finally {
+    try {
+      process.chdir(previousCwd);
+    } catch {
+      // best-effort restore; ignore
+    }
   }
 }
 
