@@ -49,12 +49,19 @@ export async function confirmOverwrite(targetPath: string): Promise<boolean> {
 
 export async function promptPackageName(defaultName?: string): Promise<string> {
   const { text } = await clack();
+  // clack's `validate` runs on the user-typed string before `defaultValue`
+  // kicks in, so an empty Enter on a defaulted prompt would otherwise be
+  // rejected as "required". Treat empty submissions as accepting the default.
+  const validate = (value: string | undefined): string | undefined => {
+    if ((!value || !value.trim()) && defaultName) return undefined;
+    return requireNonEmpty('Package name')(value);
+  };
   return checkCancel(
     await text({
       message: 'Package name',
       placeholder: defaultName,
       defaultValue: defaultName,
-      validate: requireNonEmpty('Package name'),
+      validate,
     })
   );
 }
