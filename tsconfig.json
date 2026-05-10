@@ -1,19 +1,17 @@
 {
   "compilerOptions": {
-    "declaration": true,
+    "target": "ES2022",
+    "module": "CommonJS",
+    "lib": ["ES2022"],
+    "moduleResolution": "node",
     "outDir": "lib",
-    "skipLibCheck": true,
+    "declaration": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "module": "CommonJS",
-    "target": "es6",
-    "moduleResolution": "node",
-    "jsx": "preserve",
-    "lib": ["ES2020"]
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["src/bin.ts", "src/initProject.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "lib", "**/*.test.ts"]
 }

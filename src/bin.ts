@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 
-import program from 'commander';
+import { Command } from 'commander';
 import initProject from './initProject';
+
+const program = new Command();
 
 const { version } = require('../package.json');
 
-program
-  .name('arco')
-  .version(version, '-v, --version')
-  .usage('[commands] [options]');
+program.name('arco').version(version, '-v, --version').usage('[commands] [options]');
 
 program
   .command('init <projectName>')

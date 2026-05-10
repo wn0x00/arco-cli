@@ -5,6 +5,9 @@ import fs from 'fs-extra';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import ora from 'ora';
+import { patchChildProcessForWindows } from './patchChildProcess';
+
+patchChildProcessForWindows();
 
 type TemplateKind =
   | 'core-react-component'
@@ -402,8 +405,8 @@ async function handleDependencies(
   const dependencyList = Array.isArray(dependencies)
     ? dependencies
     : dependencies
-    ? [dependencies]
-    : [];
+      ? [dependencies]
+      : [];
   let command = 'npm';
   let args = ['install'].concat(dependencyList);
 
