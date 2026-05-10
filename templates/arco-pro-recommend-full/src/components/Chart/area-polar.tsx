@@ -1,90 +1,47 @@
-import React from 'react';
-import {
-  Chart,
-  Line,
-  Axis,
-  Area,
-  Tooltip,
-  Coordinate,
-  Legend,
-} from 'bizcharts';
-import CustomTooltip from './customer-tooltip';
+import { Radar } from '@ant-design/charts';
 import { Spin } from '@arco-design/web-react';
-import DataSet from '@antv/data-set';
 
 interface AreaPolarProps {
-  data: any[];
+  /** Each row has one numeric column per field plus an `item` label. */
+  data?: Array<Record<string, number | string>>;
   loading: boolean;
+  /** Numeric columns of `data` to fold into one series each. */
   fields: string[];
   height: number;
 }
+
+const colors = ['#313CA9', '#21CCFF', '#249EFF'];
+
 function AreaPolar(props: AreaPolarProps) {
   const { data, loading, fields, height } = props;
 
-  const { DataView } = DataSet;
-  const dv = new DataView().source(data);
-  dv.transform({
-    type: 'fold',
-    fields: fields, // 展开字段集
-    key: 'category', // key字段
-    value: 'score', // value字段
-  });
+  // Replace the @antv/data-set "fold" transform with a plain JS pivot:
+  // turn { item, A, B, C } rows into { item, category, score } rows.
+  const folded: Array<{ item: unknown; category: string; score: number }> = [];
+  for (const row of data ?? []) {
+    for (const f of fields) {
+      folded.push({ item: row.item, category: f, score: Number(row[f]) || 0 });
+    }
+  }
 
   return (
     <Spin loading={loading} style={{ width: '100%' }}>
-      <Chart
-        height={height || 400}
-        padding={0}
-        data={dv.rows}
+      <Radar
         autoFit
+        height={height || 400}
+        data={folded}
+        xField="item"
+        yField="score"
+        colorField="category"
         scale={{
-          score: {
-            min: 0,
-            max: 80,
-          },
+          color: { range: colors },
+          y: { domain: [0, 80] },
         }}
-        interactions={['legend-highlight']}
-        className={'chart-wrapper'}
-      >
-        <Coordinate type="polar" radius={0.8} />
-        <Tooltip shared>
-          {(title, items) => {
-            return <CustomTooltip title={title} data={items} />;
-          }}
-        </Tooltip>
-        <Line
-          position="item*score"
-          size="2"
-          color={['category', ['#313CA9', '#21CCFF', '#249EFF']]}
-        />
-        <Area
-          position="item*score"
-          tooltip={false}
-          color={[
-            'category',
-            [
-              'rgba(49, 60, 169, 0.4)',
-              'rgba(33, 204, 255, 0.4)',
-              'rgba(36, 158, 255, 0.4)',
-            ],
-          ]}
-        />
-        <Axis name="score" label={false} />
-        <Legend
-          position="right"
-          marker={(_, index) => {
-            return {
-              symbol: 'circle',
-              style: {
-                r: 4,
-                lineWidth: 0,
-                fill: ['#313CA9', '#21CCFF', '#249EFF'][index],
-              },
-            };
-          }}
-          name="category"
-        />
-      </Chart>
+        area={{ style: { fillOpacity: 0.4 } }}
+        line={{ size: 2 }}
+        legend={{ color: { position: 'right', itemMarker: 'circle' } }}
+        axis={{ y: { label: false } }}
+      />
     </Spin>
   );
 }

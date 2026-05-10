@@ -80,3 +80,5 @@ package-lock.json
 
 packages/*/lib
 .claude/settings.local.json
+.smoke-tmp
+.smoke-2

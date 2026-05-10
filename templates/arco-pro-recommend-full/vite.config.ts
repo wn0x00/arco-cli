@@ -11,7 +11,12 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    svgr(),
+    // Match the old @arco-plugins/vite-plugin-svgr behavior: every `*.svg`
+    // import returns the SVG as a React component (default export). Without
+    // this `include`, vite-plugin-svgr v4 only handles `*.svg?react` queries
+    // and `import Logo from './logo.svg'` would resolve to a data URL string,
+    // which React then tries to render as a tag name and crashes.
+    svgr({ include: '**/*.svg' }),
     vitePluginForArco({
       theme: '@arco-themes/react-arco-pro',
       modifyVars: {

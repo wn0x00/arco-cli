@@ -1,26 +1,15 @@
-import { G2 } from 'bizcharts';
-import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-const defaultDarkTheme = G2.getTheme('dark');
-
-G2.registerTheme('darkTheme', {
-  ...defaultDarkTheme,
-  background: 'transparent',
-});
-
-function useBizTheme() {
-  const theme = useSelector((state: any) => state.theme);
-  const themeName = theme === 'dark' ? 'darkTheme' : 'light';
-  const [themeObj, setThemeObj] = useState(G2.getTheme(themeName));
-
-  useEffect(() => {
-    const themeName = theme === 'dark' ? 'darkTheme' : 'light';
-    const newTheme = G2.getTheme(themeName);
-    setThemeObj(newTheme);
-  }, [theme]);
-
-  return themeObj;
+/**
+ * Returns the @ant-design/charts theme name matching the current app theme.
+ * Pass the result as `theme={...}` on Line / Column / Pie / etc.
+ *
+ * (Replaces the previous BizCharts G2.registerTheme/getTheme dance — the
+ * v2 Ant Design Charts components accept a theme name directly.)
+ */
+function useChartTheme(): 'classic' | 'classicDark' {
+  const theme = useSelector((state: { theme?: string }) => state.theme);
+  return theme === 'dark' ? 'classicDark' : 'classic';
 }
 
-export default useBizTheme;
+export default useChartTheme;

@@ -184,7 +184,11 @@ const useRoute = (userPermission): [IRoute[], string] => {
     for (const route of routes) {
       const { requiredPermissions, oneOfPerm } = route;
       let visible = true;
-      if (requiredPermissions) {
+      // Skip permission check when user permissions haven't loaded yet
+      // (e.g. before /api/user/userInfo resolves). Treating routes as
+      // visible during the brief loading window keeps the menu populated
+      // and avoids `auth()` dereferencing an undefined permission map.
+      if (requiredPermissions && userPermission) {
         visible = auth({ requiredPermissions, oneOfPerm }, userPermission);
       }
 

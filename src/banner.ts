@@ -18,10 +18,10 @@ const AUTHOR = 'by @guanzhu.me';
 export function printBanner(): void {
   console.log();
   for (const line of ASCII) {
-    console.log(chalk.cyan.bold(line));
+    console.log(chalk.blue.bold(line));
   }
   console.log();
-  console.log(`  ${chalk.cyan(`v${version}`)}  ${chalk.gray('·')}  ${chalk.dim(TAGLINE)}`);
+  console.log(`  ${chalk.blue(`v${version}`)}  ${chalk.gray('·')}  ${chalk.dim(TAGLINE)}`);
   console.log(`  ${chalk.dim(AUTHOR)}`);
   console.log();
 }

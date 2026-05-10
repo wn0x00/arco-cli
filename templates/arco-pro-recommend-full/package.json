@@ -10,14 +10,13 @@
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx --fix --cache"
   },
   "dependencies": {
-    "@antv/data-set": "^0.11.8",
+    "@ant-design/charts": "^2.2.0",
     "@arco-design/color": "^0.4.0",
     "@arco-design/web-react": "^2.66.0",
     "@arco-themes/react-arco-pro": "^0.0.7",
     "@loadable/component": "^5.16.0",
     "@turf/turf": "^7.2.0",
     "axios": "^1.8.0",
-    "bizcharts": "^4.1.11",
     "classnames": "^2.5.0",
     "copy-to-clipboard": "^3.3.3",
     "lodash": "^4.17.21",

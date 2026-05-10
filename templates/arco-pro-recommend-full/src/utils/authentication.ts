@@ -46,6 +46,13 @@ const auth = (params: Auth, userPermission: UserPermission) => {
 
 export default (params: AuthParams, userPermission: UserPermission) => {
   const { requiredPermissions, oneOfPerm } = params;
+  // userPermission may be undefined while /api/user/userInfo is in flight.
+  // Treat that window as "no opinion yet" — let the route render rather than
+  // crash inside the permission check. Once the real permissions arrive the
+  // guard re-runs against the populated map.
+  if (!userPermission) {
+    return true;
+  }
   if (Array.isArray(requiredPermissions) && requiredPermissions.length) {
     let count = 0;
     for (const rp of requiredPermissions) {
