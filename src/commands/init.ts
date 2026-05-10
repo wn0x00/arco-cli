@@ -1,14 +1,19 @@
 import path from 'path';
 import fs from 'fs-extra';
 import chalk from 'chalk';
-import { patchChildProcessForWindows } from './patchChildProcess';
-import { printBanner } from './banner';
-import { cleanStaleTemplateCache } from './utils/cache';
-import { clack } from './utils/clack';
-import { confirmOverwrite, promptPackageName, promptTemplate, PromptedTemplate } from './prompts';
-import { downloadAndCopyTemplate, installPackages, removeCacheEntry } from './template';
-import { adoptTemplateGitignore, transformToProject, tryInitialGitCommit } from './project';
-import { runTemplateHook } from './templateHook';
+import { patchChildProcessForWindows } from '../init/patchChildProcess';
+import { printBanner } from '../banner';
+import { cleanStaleTemplateCache } from '../utils/cache';
+import { clack } from '../utils/clack';
+import {
+  confirmOverwrite,
+  promptPackageName,
+  promptTemplate,
+  PromptedTemplate,
+} from '../init/prompts';
+import { downloadAndCopyTemplate, installPackages, removeCacheEntry } from '../init/template';
+import { adoptTemplateGitignore, transformToProject, tryInitialGitCommit } from '../init/project';
+import { runTemplateHook } from '../init/templateHook';
 
 patchChildProcessForWindows();
 

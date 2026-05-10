@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs-extra';
-import { execQuick } from './utils/exec';
+import { execQuick } from '../utils/exec';
 
 const ARCO_REACT_PACKAGE = '@arco-design/web-react';
 const ARCO_VUE_PACKAGE = '@arco-design/web-vue';

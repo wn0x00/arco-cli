@@ -43,7 +43,15 @@ explicitly rejects them.
 ```
 arco init <projectName> [--template <pkg-or-file:path>] [--skip-install] [--skip-git]
 arco add page <name>     [--type blank|table] [--root <path>]
+arco dev                 [--root <path>] [-- ...forwarded-args]
 ```
+
+### `arco dev`
+
+Runs the project's `dev` script via the detected package manager
+(`pnpm-lock.yaml` > `yarn.lock` > else npm). Stdio is inherited so the user
+sees the dev server output and can Ctrl+C through. Anything after `--` is
+forwarded to the underlying script — e.g. `arco dev -- --port 5174`.
 
 ### `arco init`
 

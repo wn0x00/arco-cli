@@ -1,4 +1,4 @@
-import { clack } from './utils/clack';
+import { clack } from '../utils/clack';
 
 export type TemplateKind =
   | 'core-react-component'

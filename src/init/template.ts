@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs-extra';
-import { execQuick } from './utils/exec';
-import { newCacheEntryPath } from './utils/cache';
+import { execQuick } from '../utils/exec';
+import { newCacheEntryPath } from '../utils/cache';
 import { runTemplateHook } from './templateHook';
 
 export const TEMPLATE_DIR = 'template';

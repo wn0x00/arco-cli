@@ -1,3 +1,5 @@
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
 import { flattenForMenu, insertRoute, parseRoutesSource, serializeRoutes } from './routesEdit';
 
 const SAMPLE = `import { useEffect, useState } from 'react';
@@ -31,16 +33,16 @@ export default routes;
 describe('parseRoutesSource', () => {
   it('parses the routes array into a JS tree and locates its offsets', () => {
     const parsed = parseRoutesSource(SAMPLE);
-    expect(parsed).not.toBeNull();
-    expect(parsed!.routes).toHaveLength(2);
-    expect(parsed!.routes[0].name).toBe('menu.dashboard');
-    expect(parsed!.routes[0].children?.[0].key).toBe('dashboard/workplace');
-    expect(SAMPLE[parsed!.arrayStart]).toBe('[');
-    expect(SAMPLE[parsed!.arrayEnd]).toBe(']');
+    assert.notEqual(parsed, null);
+    assert.equal(parsed!.routes.length, 2);
+    assert.equal(parsed!.routes[0].name, 'menu.dashboard');
+    assert.equal(parsed!.routes[0].children?.[0].key, 'dashboard/workplace');
+    assert.equal(SAMPLE[parsed!.arrayStart], '[');
+    assert.equal(SAMPLE[parsed!.arrayEnd], ']');
   });
 
   it('returns null when the routes declaration is missing', () => {
-    expect(parseRoutesSource('// nothing to see\nexport const x = 1;\n')).toBeNull();
+    assert.equal(parseRoutesSource('// nothing to see\nexport const x = 1;\n'), null);
   });
 });
 
@@ -48,11 +50,14 @@ describe('insertRoute', () => {
   it('appends a new route at the root level', () => {
     const parsed = parseRoutesSource(SAMPLE)!;
     const next = insertRoute(parsed, null, { name: 'menu.user', key: 'user' });
-    expect(next).toContain("name: 'menu.user'");
-    expect(next).toContain("key: 'user'");
+    assert.match(next, /name: 'menu\.user'/);
+    assert.match(next, /key: 'user'/);
     // Original routes survive the round-trip.
     const reparsed = parseRoutesSource(next)!;
-    expect(reparsed.routes.map((r) => r.key)).toEqual(['dashboard', 'list', 'user']);
+    assert.deepEqual(
+      reparsed.routes.map((r) => r.key),
+      ['dashboard', 'list', 'user']
+    );
   });
 
   it("appends to an existing parent's children array", () => {
@@ -63,10 +68,10 @@ describe('insertRoute', () => {
     });
     const reparsed = parseRoutesSource(next)!;
     const dashboard = reparsed.routes.find((r) => r.key === 'dashboard');
-    expect(dashboard?.children?.map((c) => c.key)).toEqual([
-      'dashboard/workplace',
-      'dashboard/monitor',
-    ]);
+    assert.deepEqual(
+      dashboard?.children?.map((c) => c.key),
+      ['dashboard/workplace', 'dashboard/monitor']
+    );
   });
 
   it('creates children: [] when the parent had no children before', () => {
@@ -77,7 +82,10 @@ describe('insertRoute', () => {
     });
     const reparsed = parseRoutesSource(next)!;
     const list = reparsed.routes.find((r) => r.key === 'list');
-    expect(list?.children?.map((c) => c.key)).toEqual(['list/search']);
+    assert.deepEqual(
+      list?.children?.map((c) => c.key),
+      ['list/search']
+    );
   });
 
   it('preserves passthrough fields like requiredPermissions', () => {
@@ -89,7 +97,7 @@ describe('insertRoute', () => {
     const next = insertRoute(parsed, null, { name: 'menu.x', key: 'x' });
     const reparsed = parseRoutesSource(next)!;
     const wp = reparsed.routes[0].children![0];
-    expect(wp.requiredPermissions).toEqual([{ resource: 'm.dash.work', actions: ['read'] }]);
+    assert.deepEqual(wp.requiredPermissions, [{ resource: 'm.dash.work', actions: ['read'] }]);
   });
 });
 
@@ -97,7 +105,7 @@ describe('flattenForMenu', () => {
   it('returns top-level groups and their direct children with level annotations', () => {
     const parsed = parseRoutesSource(SAMPLE)!;
     const flat = flattenForMenu(parsed.routes);
-    expect(flat).toEqual([
+    assert.deepEqual(flat, [
       { key: 'dashboard', label: 'menu.dashboard', level: 1, hasChildren: true },
       {
         key: 'dashboard/workplace',
@@ -114,8 +122,11 @@ describe('serializeRoutes', () => {
   it('round-trips a parsed tree to a re-parseable form', () => {
     const parsed = parseRoutesSource(SAMPLE)!;
     const text = serializeRoutes(parsed.routes);
-    expect(text.startsWith('[')).toBe(true);
+    assert.equal(text.startsWith('['), true);
     const reparsed = parseRoutesSource(`export const routes = ${text};`);
-    expect(reparsed?.routes.map((r) => r.key)).toEqual(['dashboard', 'list']);
+    assert.deepEqual(
+      reparsed?.routes.map((r) => r.key),
+      ['dashboard', 'list']
+    );
   });
 });

@@ -79,3 +79,4 @@ isolate/arco-doc-site-components/lib
 package-lock.json
 
 packages/*/lib
+.claude/settings.local.json
