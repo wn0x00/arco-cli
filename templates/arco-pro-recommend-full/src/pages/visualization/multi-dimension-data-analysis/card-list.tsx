@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Statistic, Typography, Spin, Grid, Card, Skeleton } from '@arco-design/web-react';
 import cs from 'classnames';
-import { Tiny } from '@ant-design/charts';
+import { Line, Column } from '@ant-design/charts';
 import axios from 'axios';
 import useLocale from '@/utils/useLocale';
 import locale from './locale';
@@ -23,27 +23,51 @@ export interface CardProps {
   loading?: boolean;
 }
 
-const sparkSize = { autoFit: true, height: 80 } as const;
+const sparkConfig = {
+  autoFit: true,
+  height: 80,
+  paddingLeft: 10,
+  paddingRight: 10,
+  paddingTop: 0,
+  paddingBottom: 0,
+  legend: false,
+  axis: false,
+} as const;
 
 function SimpleLine({ chartData }: { chartData: CardProps['chartData'] }) {
-  const values = (chartData ?? []).map((d) => d.y);
   return (
-    <Tiny.Line
-      {...sparkSize}
-      data={values}
-      smooth
-      style={{ stroke: '#165DFF', lineWidth: 2 }}
+    <Line
+      {...sparkConfig}
+      data={chartData ?? []}
+      xField="x"
+      yField="y"
+      colorField="name"
+      shapeField="smooth"
+      scale={{ color: { range: ['#165DFF', 'rgba(106,161,255,0.3)'] } }}
+      lineWidth={2}
+      tooltip={{
+        items: [{ field: 'y', valueFormatter: (v: number) => Number(v).toLocaleString() }],
+      }}
     />
   );
 }
 
 function SimpleInterval({ chartData }: { chartData: CardProps['chartData'] }) {
-  const values = (chartData ?? []).map((d) => d.y);
   return (
-    <Tiny.Column
-      {...sparkSize}
-      data={values}
-      style={{ fill: (_d: number, idx: number) => (idx % 2 === 0 ? '#86DF6C' : '#468DFF') }}
+    <Column
+      {...sparkConfig}
+      data={chartData ?? []}
+      xField="x"
+      yField="y"
+      style={{
+        fill: (datum: { x: number | string }) =>
+          Number(datum.x) % 2 === 0 ? '#86DF6C' : '#468DFF',
+        radiusTopLeft: 2,
+        radiusTopRight: 2,
+      }}
+      tooltip={{
+        items: [{ field: 'y', valueFormatter: (v: number) => Number(v).toLocaleString() }],
+      }}
     />
   );
 }

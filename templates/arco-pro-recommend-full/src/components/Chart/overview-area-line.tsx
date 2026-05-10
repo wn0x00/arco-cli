@@ -18,20 +18,26 @@ function OverviewAreaLine({
         data={data ?? []}
         xField="date"
         yField="count"
-        smooth
-        line={{ size: 3 }}
+        shapeField="smooth"
+        line={{ shapeField: 'smooth', style: { lineWidth: 3 } }}
         style={{
-          fill: 'linear-gradient(180deg, rgba(17, 126, 255, 0.5), rgba(17, 128, 255, 0))',
-          stroke: 'linear-gradient(0deg, #1EE7FF, #249AFF, #6F42FB)',
+          // G2 gradient syntax: `l(angle) stop:color ...`
+          fill: 'l(270) 0:rgba(17, 126, 255, 0.5) 1:rgba(17, 128, 255, 0)',
+          stroke: 'l(0) 0:#1EE7FF 0.57:#249AFF 0.85:#6F42FB',
         }}
         axis={{
           y: {
             labelFormatter: (text: number) => `${text / 1000}k`,
-            grid: { lineDash: [4, 4] },
+            grid: true,
+            gridLineDash: [4, 4],
           },
-          x: { grid: { stroke: '#E5E8EF' } },
+          x: { grid: true, gridStroke: '#E5E8EF' },
         }}
-        tooltip={{ items: [{ field: 'count', name: 'Count' }] }}
+        tooltip={{
+          items: [
+            { field: 'count', valueFormatter: (v: number) => Number(v).toLocaleString() },
+          ],
+        }}
       />
     </Spin>
   );

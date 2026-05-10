@@ -1,6 +1,6 @@
 import { Skeleton, Statistic, Typography } from '@arco-design/web-react';
 import cs from 'classnames';
-import { Tiny, Pie } from '@ant-design/charts';
+import { Line, Column, Pie } from '@ant-design/charts';
 import { IconArrowRise, IconArrowFall } from '@arco-design/web-react/icon';
 import styles from '../style/public-opinion.module.less';
 
@@ -18,28 +18,46 @@ export interface PublicOpinionCardProps {
   loading?: boolean;
 }
 
-const sparkSize = { autoFit: true, height: 80 } as const;
+const sparkConfig = {
+  autoFit: true,
+  height: 80,
+  paddingLeft: 10,
+  paddingRight: 10,
+  paddingTop: 10,
+  paddingBottom: 0,
+  legend: false,
+  axis: false,
+  tooltip: false,
+} as const;
 
 function SimpleLine({ chartData }: { chartData: PublicOpinionCardProps['chartData'] }) {
-  // Tiny charts work best on a flat array of numbers; pick the primary series.
-  const values = (chartData ?? []).map((d) => d.y);
   return (
-    <Tiny.Line
-      {...sparkSize}
-      data={values}
-      smooth
-      style={{ stroke: '#165DFF', lineWidth: 2 }}
+    <Line
+      {...sparkConfig}
+      data={chartData ?? []}
+      xField="x"
+      yField="y"
+      colorField="name"
+      shapeField="smooth"
+      scale={{ color: { range: ['#165DFF', 'rgba(106,161,255,0.3)'] } }}
+      lineWidth={3}
     />
   );
 }
 
 function SimpleInterval({ chartData }: { chartData: PublicOpinionCardProps['chartData'] }) {
-  const values = (chartData ?? []).map((d) => d.y);
   return (
-    <Tiny.Column
-      {...sparkSize}
-      data={values}
-      style={{ fill: (datum: number, idx: number) => (idx % 2 === 0 ? '#2CAB40' : '#86DF6C') }}
+    <Column
+      {...sparkConfig}
+      data={chartData ?? []}
+      xField="x"
+      yField="y"
+      style={{
+        fill: (datum: { x: number | string }) =>
+          Number(datum.x) % 2 === 0 ? '#2CAB40' : '#86DF6C',
+        radiusTopLeft: 2,
+        radiusTopRight: 2,
+      }}
     />
   );
 }
@@ -49,7 +67,11 @@ function SimplePie({ chartData }: { chartData: PublicOpinionCardProps['chartData
     <Pie
       autoFit
       height={80}
-      data={chartData as Array<{ name: string; count: number }>}
+      paddingLeft={0}
+      paddingRight={20}
+      paddingTop={0}
+      paddingBottom={0}
+      data={(chartData ?? []) as Array<{ name: string; count: number }>}
       angleField="count"
       colorField="name"
       innerRadius={0.7}
@@ -57,6 +79,7 @@ function SimplePie({ chartData }: { chartData: PublicOpinionCardProps['chartData
       scale={{ color: { range: ['#8D4EDA', '#00B2FF', '#165DFF'] } }}
       label={false}
       legend={{ color: { position: 'right' } }}
+      tooltip={false}
       interaction={{ elementSelect: true }}
     />
   );
