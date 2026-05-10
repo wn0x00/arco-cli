@@ -24,11 +24,13 @@ function HorizontalInterval({
         sort={{ reverse: true, by: 'y' }}
         style={{
           fill: '#4086FF',
-          maxWidth: 12,
-          radiusTopLeft: 5,
-          radiusTopRight: 5,
-          radiusBottomLeft: 5,
-          radiusBottomRight: 5,
+          // BizCharts version drew much thicker bars; live demo's bars are
+          // ~25-30px tall. Match by lifting maxWidth to 24.
+          maxWidth: 24,
+          radiusTopLeft: 12,
+          radiusTopRight: 12,
+          radiusBottomLeft: 12,
+          radiusBottomRight: 12,
         }}
         axis={{
           y: { labelFormatter: (v: number) => `${v / 1000}k` },

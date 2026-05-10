@@ -23,9 +23,9 @@ function MultiInterval({
         yField="count"
         colorField="name"
         scale={{ color: { range: colorRange } }}
-        stack
+        stack={{ reverse: true }}
         style={{ maxWidth: 16, radiusTopLeft: 2, radiusTopRight: 2 }}
-        legend={{ color: { itemMarker: 'circle' } }}
+        legend={{ color: { position: 'bottom', itemMarker: 'circle' } }}
         axis={{
           y: { labelFormatter: (v: number) => `${v / 1000}k` },
         }}

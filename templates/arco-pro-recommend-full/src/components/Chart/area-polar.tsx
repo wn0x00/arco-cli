@@ -40,8 +40,8 @@ function AreaPolar(props: AreaPolarProps) {
           color: { range: colors },
           y: { domain: [0, 80] },
         }}
-        area={{ style: { fillOpacity: 0.4 } }}
-        line={{ size: 2 }}
+        area={{ style: { fillOpacity: 0.18 } }}
+        line={{ style: { lineWidth: 2 } }}
         legend={{ color: { position: 'right', itemMarker: 'circle' } }}
         axis={{ y: { label: false } }}
       />
