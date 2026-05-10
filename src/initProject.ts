@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs-extra';
 import chalk from 'chalk';
 import { patchChildProcessForWindows } from './patchChildProcess';
+import { printBanner } from './banner';
 import { cleanStaleTemplateCache } from './utils/cache';
 import { clack } from './utils/clack';
 import { confirmOverwrite, promptPackageName, promptTemplate, PromptedTemplate } from './prompts';
@@ -169,7 +170,8 @@ export default async function initProject(options: InitProjectOptions): Promise<
 
   const { intro, outro } = await clack();
   const root = path.resolve(options.projectName);
-  intro(chalk.cyan('arco init'));
+  printBanner();
+  intro(chalk.bold('arco init'));
 
   if (fs.pathExistsSync(root)) {
     const overwrite = await confirmOverwrite(root);
