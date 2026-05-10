@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "lib",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "module": "CommonJS",
+    "target": "es6",
+    "moduleResolution": "node",
+    "jsx": "preserve",
+    "lib": ["ES2020"]
+  },
+  "include": ["src/bin.ts", "src/initProject.ts"],
+  "exclude": ["node_modules"]
+}
