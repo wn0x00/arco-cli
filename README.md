@@ -19,6 +19,13 @@ npm install -g @guanzhu.me/arco-cli
 arco init my-app
 ```
 
+Use the bundled modern starter (skips the menu):
+
+```bash
+arco init my-app --template pro-recommend          # full preset (default)
+arco init my-app --template pro-recommend:simple   # simple preset
+```
+
 Use a specific template package:
 
 ```bash

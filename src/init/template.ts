@@ -73,16 +73,43 @@ export async function installPackages(
 }
 
 /**
+ * Resolve the bundled "Arco Pro (Recommend)" template directory shipped
+ * inside @guanzhu.me/arco-cli. The template lives at
+ * `<cli-package>/templates/arco-pro-recommend-<preset>/`. From this
+ * compiled module (lib/init/template.js) the path is `../../templates/...`.
+ */
+function bundledRecommendDir(preset: 'simple' | 'full'): string {
+  return path.resolve(__dirname, '../../templates', `arco-pro-recommend-${preset}`);
+}
+
+/**
  * Download `template` into a fresh cache directory and copy its content into
  * `root`. Returns the cache directory and any after-init hook path so the
  * caller can run the hook later and clean up.
+ *
+ * The pseudo-name `'pro-recommend'` skips the npm download path entirely
+ * and copies from a template bundled inside arco-cli itself, picking up
+ * the simple/full variant from `bundledPreset`.
  */
 export async function downloadAndCopyTemplate(options: {
   root: string;
   template: string;
   isForMonorepo?: boolean;
   customInitFunctionParams?: Record<string, unknown>;
+  bundledPreset?: 'simple' | 'full';
 }): Promise<DownloadedTemplate> {
+  if (options.template === 'pro-recommend') {
+    const sourceDir = bundledRecommendDir(options.bundledPreset ?? 'full');
+    if (!fs.existsSync(sourceDir)) {
+      throw new Error(
+        `Bundled template not found at ${sourceDir}. ` +
+          'This usually means arco-cli was installed without its templates/ directory.'
+      );
+    }
+    await fs.copy(sourceDir, options.root, { overwrite: true });
+    return { packagePath: sourceDir, tempDir: '', afterInitHookPath: undefined };
+  }
+
   const tempDir = newCacheEntryPath();
   let shouldKeepTempDir = false;
 
@@ -132,6 +159,8 @@ export async function downloadAndCopyTemplate(options: {
 }
 
 export function removeCacheEntry(tempDir: string): void {
+  // Bundled templates pass an empty tempDir — nothing to remove.
+  if (!tempDir) return;
   try {
     fs.removeSync(tempDir);
   } catch {

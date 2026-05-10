@@ -111,12 +111,14 @@ printf '\n' | arco init my-app --template arco-design-pro --skip-install --skip-
 
 ## Available templates
 
-Status as of 2026-05. Recommend Arco Pro for actual application work; for new
-component/library packages, recommend Custom + a fresh template the user
-authors themselves, since the official `template-core` is 3 years stale.
+Status as of 2026-05. **Default the user to "Arco Pro (Recommend)"** —
+it's the only fully-maintained option in this list. The legacy templates
+remain wired up for users who specifically want them, but flag the
+maintenance gap so the user makes an informed choice.
 
-| Menu label                    | npm package                                | Produces                              | Last update |
+| Menu label                    | Source                                     | Produces                              | Last update |
 | ----------------------------- | ------------------------------------------ | ------------------------------------- | ----------- |
+| **Arco Pro (Recommend)** ✨   | bundled in arco-cli `templates/`           | React 19 + Vite 7 + Arco 2.66 admin (Simple or Full) | maintained |
 | Arco Pro React                | `arco-design-pro` 2.8.1                    | Admin app (Next/Vite/CRA × Simple/Full) | 2024-04   |
 | Arco Pro Vue                  | `arco-design-pro-vue` 2.7.3                | Admin app (Vite × Simple/Full)        | 2024-04     |
 | React/Vue component           | `@arco-materials/template-core` 1.2.10     | Single Arco material npm package      | 2023-05     |
@@ -124,6 +126,37 @@ authors themselves, since the official `template-core` is 3 years stale.
 | Team site                     | `@arco-materials/template-team-site` 1.1.1 | Internal Arco material catalog site   | 2023-05     |
 | Lerna monorepo                | `@arco-materials/template-monorepo` 1.0.3  | Lerna-based monorepo for materials    | 2023-05     |
 | Custom                        | (user-supplied)                            | Anything that follows the contract    | depends     |
+
+### About "Arco Pro (Recommend)"
+
+The bundled template lives under `templates/arco-pro-recommend-{simple,full}/`
+inside the arco-cli package itself — not on npm. The CLI copies it directly
+without a network round-trip. Stack:
+
+- **Vite 7** + **React 19** + **TypeScript 5**
+- **Arco Design 2.66** (`@arco-design/web-react`)
+- **Zustand 5** for state (theme / locale / sidebar persisted via localStorage)
+- **react-router-dom 7** for routing
+- **axios** with placeholder interceptors ready to be filled in
+- A small in-process Vite plugin at `vite-plugins/mock.ts` that intercepts
+  `/api/*` and serves handlers from `mock/` (dev-only, zero prod footprint)
+
+It deliberately ships **without** authentication / authorization / permission
+UI — those are planned to land later via dedicated `arco add` subcommands so
+users can opt in piece by piece. The Layout's `UserMenu.tsx` and
+`utils/request.ts` carry TODO comments marking the future plug-in points.
+
+Page layout matches `arco add page` exactly — `src/pages/<name>/{index.tsx,
+style/index.module.less, locale/index.ts}` — so users can extend the project
+with the CLI immediately.
+
+Non-interactive shortcut for scripts:
+
+```bash
+arco init my-app --template pro-recommend          # defaults to full
+arco init my-app --template pro-recommend:simple
+arco init my-app --template pro-recommend:full
+```
 
 ## Custom template authoring
 

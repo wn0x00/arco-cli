@@ -1,0 +1,36 @@
+const i18n = {
+  'en-US': {
+    'settings.title': 'Settings',
+    'settings.subtitle': 'These preferences are kept in zustand persist (localStorage).',
+    'settings.theme.title': 'Theme',
+    'settings.theme.light': 'Light',
+    'settings.theme.dark': 'Dark',
+    'settings.locale.title': 'Language',
+    'settings.about.title': 'About this session',
+    'settings.about.user': 'User',
+    'settings.about.guest': 'Guest (no auth wired up — run `arco add auth` later)',
+    'settings.about.theme': 'Theme',
+    'settings.about.locale': 'Locale',
+    'settings.about.sidebar': 'Sidebar',
+    'settings.about.sidebar.collapsed': 'Collapsed',
+    'settings.about.sidebar.expanded': 'Expanded',
+  },
+  'zh-CN': {
+    'settings.title': '设置',
+    'settings.subtitle': '偏好通过 zustand persist 存储在 localStorage。',
+    'settings.theme.title': '主题',
+    'settings.theme.light': '浅色',
+    'settings.theme.dark': '深色',
+    'settings.locale.title': '语言',
+    'settings.about.title': '当前会话信息',
+    'settings.about.user': '用户',
+    'settings.about.guest': '游客（未接入认证 — 后续可执行 arco add auth）',
+    'settings.about.theme': '主题',
+    'settings.about.locale': '语言',
+    'settings.about.sidebar': '侧边栏',
+    'settings.about.sidebar.collapsed': '已折叠',
+    'settings.about.sidebar.expanded': '已展开',
+  },
+};
+
+export default i18n;

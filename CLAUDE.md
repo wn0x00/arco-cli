@@ -59,6 +59,27 @@ src/
     └── clack.ts            # lazy ESM loader for @clack/prompts
 ```
 
+Plus, **outside `src/`**, we ship the bundled "Arco Pro (Recommend)" template:
+
+```
+templates/
+├── arco-pro-recommend-full/    # Vite 7 + React 19 + Arco + 4 demo pages + mock
+└── arco-pro-recommend-simple/  # same shell, dashboard only
+```
+
+These are full Vite/React projects (not npm modules) shipped inside the
+arco-cli package. When the user picks "Arco Pro (Recommend)" — or runs
+`arco init my-app --template pro-recommend[:simple|full]` —
+`src/init/template.ts` skips the npm download path and copies from
+`lib/init/../../templates/...` into the target dir.
+`replaceConstants` in `src/init/project.ts` then rewrites the
+`@CONST_PACKAGE_NAME@` placeholder in the copied package.json/index.html.
+
+CI's `template-build` job actually scaffolds both presets and runs
+`npm install && npm run build` against them on Node 24 — so a regression
+that breaks the build inside the templates fails CI even though the
+CLI itself still passes lint/test.
+
 When adding a new subcommand: put the orchestrator in `src/commands/`, its engine modules in a sibling directory named after the command, and only escalate to `utils/` for things you'd reuse from a third command.
 
 ### Three non-obvious things to know

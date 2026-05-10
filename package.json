@@ -1,6 +1,6 @@
 {
   "name": "@guanzhu.me/arco-cli",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Initialize a project from selectable Arco templates",
   "keywords": [
     "arco",
@@ -51,7 +51,8 @@
     "url": "git+https://github.com/wn0x00/arco-cli.git"
   },
   "files": [
-    "lib"
+    "lib",
+    "templates"
   ],
   "license": "MIT",
   "lint-staged": {

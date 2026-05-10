@@ -1,6 +1,7 @@
 import { clack } from '../utils/clack';
 
 export type TemplateKind =
+  | 'pro-recommend'
   | 'core-react-component'
   | 'core-vue-component'
   | 'core-react-library'
@@ -12,6 +13,7 @@ export type TemplateKind =
   | 'custom';
 
 export type ProFramework = 'next' | 'vite' | 'cra';
+export type ProPreset = 'simple' | 'full';
 
 export type PromptedTemplate = {
   kind: TemplateKind;
@@ -21,6 +23,8 @@ export type PromptedTemplate = {
   description?: string;
   proFramework?: ProFramework;
   proSimple?: boolean;
+  /** For the bundled `pro-recommend` flow: which preset (simple|full) the user chose. */
+  recommendPreset?: ProPreset;
 };
 
 const requireNonEmpty =
@@ -73,18 +77,42 @@ export async function promptTemplate(defaultName?: string): Promise<PromptedTemp
     await select<TemplateKind>({
       message: 'Choose a template',
       options: [
+        {
+          value: 'pro-recommend',
+          label: 'Arco Pro (Recommend)',
+          hint: 'React 19 + Vite 7 + Arco 2.66 — bundled, modern',
+        },
+        { value: 'pro-react', label: 'Arco Pro React' },
+        { value: 'pro-vue', label: 'Arco Pro Vue' },
         { value: 'core-react-component', label: 'React component' },
         { value: 'core-vue-component', label: 'Vue component' },
         { value: 'core-react-library', label: 'React component library' },
         { value: 'core-vue-library', label: 'Vue component library' },
-        { value: 'pro-react', label: 'Arco Pro React' },
-        { value: 'pro-vue', label: 'Arco Pro Vue' },
         { value: 'team-site', label: 'Team site' },
         { value: 'monorepo', label: 'Lerna monorepo' },
         { value: 'custom', label: 'Custom npm package or file: path' },
       ],
     })
   );
+
+  if (kind === 'pro-recommend') {
+    const preset = await checkCancel(
+      await select<ProPreset>({
+        message: 'Choose preset',
+        options: [
+          { value: 'full', label: 'Full', hint: 'dashboard / list / form / settings' },
+          { value: 'simple', label: 'Simple', hint: 'dashboard only' },
+        ],
+      })
+    );
+    const packageName = await promptPackageName(defaultName);
+    return {
+      kind,
+      template: 'pro-recommend',
+      packageName,
+      recommendPreset: preset,
+    };
+  }
 
   if (kind.startsWith('core-')) {
     const packageName = await promptPackageName(defaultName);
@@ -139,7 +167,7 @@ export async function promptTemplate(defaultName?: string): Promise<PromptedTemp
     return { kind, template, packageName };
   }
 
-  const defaultsByKind: Record<Exclude<TemplateKind, 'custom'>, string> = {
+  const defaultsByKind: Record<Exclude<TemplateKind, 'custom' | 'pro-recommend'>, string> = {
     'core-react-component': '@arco-materials/template-core',
     'core-vue-component': '@arco-materials/template-core',
     'core-react-library': '@arco-materials/template-core',
@@ -150,9 +178,11 @@ export async function promptTemplate(defaultName?: string): Promise<PromptedTemp
     monorepo: '@arco-materials/template-monorepo',
   };
   const packageName = await promptPackageName(defaultName);
+  // `custom` and `pro-recommend` are handled in dedicated branches above,
+  // so by this point `kind` is narrowed to one of the keys in defaultsByKind.
   return {
     kind,
-    template: defaultsByKind[kind],
+    template: defaultsByKind[kind as keyof typeof defaultsByKind],
     packageName,
   };
 }

@@ -33,6 +33,8 @@ type CreateProjectOptions = {
   skipInstall?: boolean;
   skipGit?: boolean;
   customInitFunctionParams?: Record<string, unknown>;
+  /** Selected preset for the bundled `pro-recommend` template. */
+  bundledPreset?: 'simple' | 'full';
 };
 
 function templateMaterialType(kind: PromptedTemplate['kind']): string {
@@ -48,6 +50,17 @@ function buildOptionsFromPrompt(
   prompted: PromptedTemplate,
   flags: Pick<InitProjectOptions, 'skipInstall' | 'skipGit'>
 ): CreateProjectOptions {
+  if (prompted.kind === 'pro-recommend') {
+    return {
+      root,
+      projectName,
+      template: 'pro-recommend',
+      packageJson: { name: prompted.packageName },
+      bundledPreset: prompted.recommendPreset ?? 'full',
+      ...flags,
+    };
+  }
+
   if (prompted.kind.startsWith('core-')) {
     const materialType = templateMaterialType(prompted.kind);
     return {
@@ -107,6 +120,7 @@ async function createProject(options: CreateProjectOptions): Promise<void> {
       template: options.template,
       isForMonorepo: options.isForMonorepo,
       customInitFunctionParams: options.customInitFunctionParams,
+      bundledPreset: options.bundledPreset,
     });
     downloadSpinner.stop('Template ready');
   } catch (err) {
@@ -187,6 +201,26 @@ export default async function initProject(options: InitProjectOptions): Promise<
   }
 
   if (options.template) {
+    // Recognize the bundled recommend pseudo-name. Accept either
+    // `--template pro-recommend` (defaults to full) or
+    // `--template pro-recommend:simple` / `pro-recommend:full`.
+    const recommendMatch = options.template.match(/^pro-recommend(?::(simple|full))?$/);
+    if (recommendMatch) {
+      const preset = (recommendMatch[1] as 'simple' | 'full' | undefined) ?? 'full';
+      const packageName = await promptPackageName(options.projectName);
+      await createProject({
+        root,
+        projectName: options.projectName,
+        template: 'pro-recommend',
+        packageJson: { name: packageName },
+        bundledPreset: preset,
+        skipInstall: options.skipInstall,
+        skipGit: options.skipGit,
+      });
+      outro(chalk.green('Project initialized successfully'));
+      return;
+    }
+
     const packageName = await promptPackageName(options.projectName);
     await createProject({
       root,
