@@ -4,15 +4,23 @@ import fs from 'fs-extra';
 export type PageType = 'blank' | 'table';
 
 export type AddPageOptions = {
-  /** kebab-case directory name, e.g. "user-list". Becomes the route key too. */
+  /** kebab-case directory name, e.g. "user-list". */
   name: string;
   type: PageType;
   /** Project root that contains src/pages. Defaults to process.cwd(). */
   root: string;
+  /**
+   * Parent route key when adding a 2nd-level page. Files are written to
+   * `src/pages/<parentKey>/<name>/` and the route key becomes
+   * `<parentKey>/<name>`. Leave undefined for a top-level page.
+   */
+  parentKey?: string;
 };
 
 export type ScaffoldResult = {
   pageRoot: string;
+  /** Final route key — `name` for top-level, `parent/name` for nested. */
+  routeKey: string;
   /** Snippet to paste into src/routes.ts to register the new page in the menu. */
   routeSnippet: string;
   /** Snippet to paste into src/locale/index.ts for the sidebar menu translation. */
@@ -43,8 +51,7 @@ export function displayFromKebab(name: string): string {
 }
 
 function blankIndexTsx(componentName: string, localeKey: string): string {
-  return `import React from 'react';
-import { Card, Typography } from '@arco-design/web-react';
+  return `import { Card, Typography } from '@arco-design/web-react';
 import useLocale from '@/utils/useLocale';
 import locale from './locale';
 import styles from './style/index.module.less';
@@ -65,7 +72,7 @@ export default ${componentName};
 }
 
 function tableIndexTsx(componentName: string, localeKey: string): string {
-  return `import React, { useState } from 'react';
+  return `import { useState } from 'react';
 import { Button, Card, Space, Table, Typography } from '@arco-design/web-react';
 import { IconPlus } from '@arco-design/web-react/icon';
 import useLocale from '@/utils/useLocale';
@@ -200,12 +207,28 @@ export function scaffoldPage(options: AddPageOptions): ScaffoldResult {
       `Invalid page name "${options.name}". Use kebab-case, e.g. "user-list" or "data-analysis".`
     );
   }
+  if (options.parentKey !== undefined && !NAME_PATTERN.test(options.parentKey)) {
+    throw new Error(
+      `Invalid parent key "${options.parentKey}". Use kebab-case, e.g. "dashboard" or "data-analysis".`
+    );
+  }
 
   const componentName = toPascalCase(options.name);
-  const localeKey = camelFromKebab(options.name);
+  const pageLocaleKey = camelFromKebab(options.name);
   const displayName = displayFromKebab(options.name);
+  // Route key mirrors the URL hierarchy: top-level = "<name>",
+  // 2nd-level = "<parent>/<name>". The page directory under src/pages also
+  // mirrors this so the App.tsx lazy resolver can map routeKey directly to
+  // a file path.
+  const routeKey = options.parentKey ? `${options.parentKey}/${options.name}` : options.name;
+  // Menu translation key: namespaced under the parent for nested pages.
+  const menuKey = options.parentKey
+    ? `menu.${camelFromKebab(options.parentKey)}.${pageLocaleKey}`
+    : `menu.${pageLocaleKey}`;
 
-  const pageRoot = path.resolve(options.root, 'src/pages', options.name);
+  const pageRoot = options.parentKey
+    ? path.resolve(options.root, 'src/pages', options.parentKey, options.name)
+    : path.resolve(options.root, 'src/pages', options.name);
   if (fs.existsSync(pageRoot)) {
     throw new Error(`Page already exists: ${pageRoot}`);
   }
@@ -215,26 +238,32 @@ export function scaffoldPage(options: AddPageOptions): ScaffoldResult {
 
   const isTable = options.type === 'table';
   const indexContent = isTable
-    ? tableIndexTsx(componentName, localeKey)
-    : blankIndexTsx(componentName, localeKey);
+    ? tableIndexTsx(componentName, pageLocaleKey)
+    : blankIndexTsx(componentName, pageLocaleKey);
   const localeContent = isTable
-    ? tableLocaleIndexTs(localeKey, displayName)
-    : blankLocaleIndexTs(localeKey, displayName);
+    ? tableLocaleIndexTs(pageLocaleKey, displayName)
+    : blankLocaleIndexTs(pageLocaleKey, displayName);
   const styleContent = isTable ? STYLE_TABLE : STYLE_BLANK;
 
   fs.writeFileSync(path.join(pageRoot, 'index.tsx'), indexContent);
   fs.writeFileSync(path.join(pageRoot, 'style', 'index.module.less'), styleContent);
   fs.writeFileSync(path.join(pageRoot, 'locale', 'index.ts'), localeContent);
 
-  const routeSnippet = `// in src/routes.ts, add to the appropriate \`routes\` array:
+  const routeSnippet = options.parentKey
+    ? `// in src/routes.ts, append to the children of '${options.parentKey}':
 {
-  name: 'menu.${localeKey}',
-  key: '${options.name}',
+  name: '${menuKey}',
+  key: '${routeKey}',
+},`
+    : `// in src/routes.ts, append to the top-level routes array:
+{
+  name: '${menuKey}',
+  key: '${routeKey}',
 },`;
 
   const menuSnippet = `// in src/locale/index.ts, add to BOTH 'en-US' and 'zh-CN' blocks:
-'menu.${localeKey}': '${displayName}',  // EN — keep or translate
-'menu.${localeKey}': '${displayName}',  // ZH — translate to Chinese`;
+'${menuKey}': '${displayName}',  // EN — keep or translate
+'${menuKey}': '${displayName}',  // ZH — translate to Chinese`;
 
-  return { pageRoot, routeSnippet, menuSnippet };
+  return { pageRoot, routeKey, routeSnippet, menuSnippet };
 }

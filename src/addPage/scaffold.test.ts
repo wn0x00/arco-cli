@@ -47,9 +47,44 @@ describe('scaffoldPage', () => {
   it('returns snippets that reference the kebab-case key and camelCase i18n key', () => {
     const result = scaffoldPage({ name: 'user-list', type: 'blank', root: tempRoot });
 
+    assert.equal(result.routeKey, 'user-list');
     assert.match(result.routeSnippet, /key: 'user-list'/);
     assert.match(result.routeSnippet, /name: 'menu\.userList'/);
     assert.match(result.menuSnippet, /'menu\.userList'/);
+  });
+
+  it('writes nested files and namespaced keys when parentKey is set', () => {
+    const result = scaffoldPage({
+      name: 'user-list',
+      type: 'blank',
+      root: tempRoot,
+      parentKey: 'dashboard',
+    });
+
+    // Files land under src/pages/<parent>/<name>/, mirroring the URL
+    // hierarchy so the App.tsx lazy resolver can find them.
+    const expected = path.join(tempRoot, 'src', 'pages', 'dashboard', 'user-list');
+    assert.equal(result.pageRoot, expected);
+    assert.equal(fs.existsSync(path.join(expected, 'index.tsx')), true);
+
+    // Route key and menu i18n key are namespaced under the parent.
+    assert.equal(result.routeKey, 'dashboard/user-list');
+    assert.match(result.routeSnippet, /key: 'dashboard\/user-list'/);
+    assert.match(result.routeSnippet, /name: 'menu\.dashboard\.userList'/);
+    assert.match(result.menuSnippet, /'menu\.dashboard\.userList'/);
+  });
+
+  it('rejects an invalid parentKey', () => {
+    assert.throws(
+      () =>
+        scaffoldPage({
+          name: 'foo',
+          type: 'blank',
+          root: tempRoot,
+          parentKey: 'BadParent',
+        }),
+      /Invalid parent key/
+    );
   });
 
   it('rejects names that are not kebab-case', () => {

@@ -9,14 +9,16 @@ import { useLocaleStore } from '@/store/locale';
 import { routes } from '@/routes';
 import type { IRoute } from '@/routes';
 
-const pageModules = import.meta.glob('./pages/*/index.tsx');
+// Deep glob so a page added under a parent (`arco add page` 2nd-level)
+// at `src/pages/<parent>/<page>/index.tsx` is picked up alongside flat
+// top-level pages at `src/pages/<page>/index.tsx`.
+const pageModules = import.meta.glob('./pages/**/index.tsx');
 
 function lazyPage(routeKey: string) {
-  // Top-level routes have keys like 'dashboard'; nested keys like
-  // 'list/search-table' aren't used by the demo pages but the resolver
-  // handles them by taking the leaf segment.
-  const dir = routeKey.split('/')[0];
-  const importer = pageModules[`./pages/${dir}/index.tsx`];
+  // The route key directly mirrors the directory path under src/pages.
+  // 'dashboard' → ./pages/dashboard/index.tsx
+  // 'dashboard/user-list' → ./pages/dashboard/user-list/index.tsx
+  const importer = pageModules[`./pages/${routeKey}/index.tsx`];
   if (!importer) {
     return () => <div style={{ padding: 24 }}>Page not found: {routeKey}</div>;
   }

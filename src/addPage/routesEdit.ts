@@ -115,7 +115,10 @@ function serializeValue(value: unknown, indent: number): string {
 }
 
 function serializeObject(obj: Record<string, unknown>, indent: number): string {
-  const keys = Object.keys(obj);
+  // Skip undefined-valued keys so a cloned RouteNode without children
+  // doesn't render `children: undefined` (which JSON.stringify turns into
+  // the literal string "null", which then makes the file un-reparseable).
+  const keys = Object.keys(obj).filter((k) => obj[k] !== undefined);
   if (keys.length === 0) return '{}';
   const inner = '  '.repeat(indent + 1);
   const close = '  '.repeat(indent);
