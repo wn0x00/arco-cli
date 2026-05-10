@@ -1,0 +1,8 @@
+{
+  "name": "mock-template-npm",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "write-marker": "node -e \"require('fs').writeFileSync(process.env.MARKER_PATH, 'ok')\""
+  }
+}
