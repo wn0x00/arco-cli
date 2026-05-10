@@ -2,17 +2,26 @@ import chalk from 'chalk';
 
 const { version } = require('../package.json');
 
-const ASCII_TOP = '  ▄▀█ █▀█ █▀▀ █▀█';
-const ASCII_BOTTOM = '  █▀█ █▀▄ █▄▄ █▄█';
+const ASCII: string[] = [
+  '   █████╗ ██████╗  ██████╗ ██████╗ ',
+  '  ██╔══██╗██╔══██╗██╔════╝██╔═══██╗',
+  '  ███████║██████╔╝██║     ██║   ██║',
+  '  ██╔══██║██╔══██╗██║     ██║   ██║',
+  '  ██║  ██║██║  ██║╚██████╗╚██████╔╝',
+  '  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ',
+];
 
-const TAGLINE = 'by @guanzhu.me · scaffold from Arco templates';
+const TAGLINE = 'scaffold from Arco templates';
+const AUTHOR = 'by @guanzhu.me';
 
 /** Print the arco-cli banner above the clack intro line. */
 export function printBanner(): void {
   console.log();
-  console.log(chalk.cyan(ASCII_TOP));
-  console.log(`${chalk.cyan(ASCII_BOTTOM)}  ${chalk.gray(`v${version}`)}`);
+  for (const line of ASCII) {
+    console.log(chalk.cyan.bold(line));
+  }
   console.log();
-  console.log(`  ${chalk.dim(TAGLINE)}`);
+  console.log(`  ${chalk.cyan(`v${version}`)}  ${chalk.gray('·')}  ${chalk.dim(TAGLINE)}`);
+  console.log(`  ${chalk.dim(AUTHOR)}`);
   console.log();
 }
