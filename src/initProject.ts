@@ -192,7 +192,7 @@ export default async function initProject(options: InitProjectOptions): Promise<
       skipGit: options.skipGit,
     });
   } else {
-    const prompted = await promptTemplate();
+    const prompted = await promptTemplate(options.projectName);
     await createProject(
       buildOptionsFromPrompt(root, options.projectName, prompted, {
         skipInstall: options.skipInstall,

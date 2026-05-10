@@ -59,7 +59,7 @@ export async function promptPackageName(defaultName?: string): Promise<string> {
   );
 }
 
-export async function promptTemplate(): Promise<PromptedTemplate> {
+export async function promptTemplate(defaultName?: string): Promise<PromptedTemplate> {
   const { select, text } = await clack();
 
   const kind = await checkCancel(
@@ -80,7 +80,7 @@ export async function promptTemplate(): Promise<PromptedTemplate> {
   );
 
   if (kind.startsWith('core-')) {
-    const packageName = await promptPackageName();
+    const packageName = await promptPackageName(defaultName);
     const title = await checkCancel(
       await text({ message: 'Project title', validate: requireNonEmpty('Project title') })
     );
@@ -89,7 +89,7 @@ export async function promptTemplate(): Promise<PromptedTemplate> {
   }
 
   if (kind === 'pro-react' || kind === 'pro-vue') {
-    const packageName = await promptPackageName();
+    const packageName = await promptPackageName(defaultName);
     const proFramework = await checkCancel(
       await select<ProFramework>({
         message: 'Choose development framework',
@@ -128,7 +128,7 @@ export async function promptTemplate(): Promise<PromptedTemplate> {
         validate: requireNonEmpty('Template'),
       })
     );
-    const packageName = await promptPackageName();
+    const packageName = await promptPackageName(defaultName);
     return { kind, template, packageName };
   }
 
@@ -142,7 +142,7 @@ export async function promptTemplate(): Promise<PromptedTemplate> {
     'team-site': '@arco-materials/template-team-site',
     monorepo: '@arco-materials/template-monorepo',
   };
-  const packageName = await promptPackageName();
+  const packageName = await promptPackageName(defaultName);
   return {
     kind,
     template: defaultsByKind[kind],
