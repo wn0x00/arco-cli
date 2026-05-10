@@ -4,6 +4,7 @@ import cs from 'classnames';
 import { Line, Column } from '@ant-design/charts';
 import axios from 'axios';
 import useLocale from '@/utils/useLocale';
+import useChartTheme from '@/utils/useChartTheme';
 import locale from './locale';
 
 import { IconArrowRise, IconArrowFall } from '@arco-design/web-react/icon';
@@ -35,8 +36,10 @@ const sparkConfig = {
 } as const;
 
 function SimpleLine({ chartData }: { chartData: CardProps['chartData'] }) {
+  const theme = useChartTheme();
   return (
     <Line
+      theme={theme}
       {...sparkConfig}
       data={chartData ?? []}
       xField="x"
@@ -53,8 +56,10 @@ function SimpleLine({ chartData }: { chartData: CardProps['chartData'] }) {
 }
 
 function SimpleInterval({ chartData }: { chartData: CardProps['chartData'] }) {
+  const theme = useChartTheme();
   return (
     <Column
+      theme={theme}
       {...sparkConfig}
       data={chartData ?? []}
       xField="x"

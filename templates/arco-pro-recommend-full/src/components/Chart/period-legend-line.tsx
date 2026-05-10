@@ -1,5 +1,6 @@
 import { Line } from '@ant-design/charts';
 import { Spin } from '@arco-design/web-react';
+import useChartTheme from '@/utils/useChartTheme';
 
 const lineColor = ['#21CCFF', '#313CA9', '#249EFF'];
 
@@ -10,9 +11,11 @@ function PeriodLine({
   data?: Array<{ time: string; rate: number; name: string }>;
   loading: boolean;
 }) {
+  const theme = useChartTheme();
   return (
     <Spin loading={loading} style={{ width: '100%' }}>
       <Line
+        theme={theme}
         autoFit
         height={370}
         data={data ?? []}

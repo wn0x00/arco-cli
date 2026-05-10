@@ -2,6 +2,7 @@ import { Skeleton, Statistic, Typography } from '@arco-design/web-react';
 import cs from 'classnames';
 import { Line, Column, Pie } from '@ant-design/charts';
 import { IconArrowRise, IconArrowFall } from '@arco-design/web-react/icon';
+import useChartTheme from '@/utils/useChartTheme';
 import styles from '../style/public-opinion.module.less';
 
 const { Title, Text } = Typography;
@@ -31,8 +32,10 @@ const sparkConfig = {
 } as const;
 
 function SimpleLine({ chartData }: { chartData: PublicOpinionCardProps['chartData'] }) {
+  const theme = useChartTheme();
   return (
     <Line
+      theme={theme}
       {...sparkConfig}
       data={chartData ?? []}
       xField="x"
@@ -46,8 +49,10 @@ function SimpleLine({ chartData }: { chartData: PublicOpinionCardProps['chartDat
 }
 
 function SimpleInterval({ chartData }: { chartData: PublicOpinionCardProps['chartData'] }) {
+  const theme = useChartTheme();
   return (
     <Column
+      theme={theme}
       {...sparkConfig}
       data={chartData ?? []}
       xField="x"
@@ -63,8 +68,10 @@ function SimpleInterval({ chartData }: { chartData: PublicOpinionCardProps['char
 }
 
 function SimplePie({ chartData }: { chartData: PublicOpinionCardProps['chartData'] }) {
+  const theme = useChartTheme();
   return (
     <Pie
+      theme={theme}
       autoFit
       height={80}
       paddingLeft={0}
@@ -74,8 +81,8 @@ function SimplePie({ chartData }: { chartData: PublicOpinionCardProps['chartData
       data={(chartData ?? []) as Array<{ name: string; count: number }>}
       angleField="count"
       colorField="name"
-      innerRadius={0.7}
-      radius={0.8}
+      innerRadius={0.55}
+      radius={0.9}
       scale={{ color: { range: ['#8D4EDA', '#00B2FF', '#165DFF'] } }}
       label={false}
       legend={{ color: { position: 'right' } }}

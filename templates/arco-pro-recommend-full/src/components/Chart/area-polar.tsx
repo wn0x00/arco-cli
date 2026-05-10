@@ -1,5 +1,6 @@
 import { Radar } from '@ant-design/charts';
 import { Spin } from '@arco-design/web-react';
+import useChartTheme from '@/utils/useChartTheme';
 
 interface AreaPolarProps {
   /** Each row has one numeric column per field plus an `item` label. */
@@ -14,6 +15,7 @@ const colors = ['#313CA9', '#21CCFF', '#249EFF'];
 
 function AreaPolar(props: AreaPolarProps) {
   const { data, loading, fields, height } = props;
+  const theme = useChartTheme();
 
   // Replace the @antv/data-set "fold" transform with a plain JS pivot:
   // turn { item, A, B, C } rows into { item, category, score } rows.
@@ -27,6 +29,7 @@ function AreaPolar(props: AreaPolarProps) {
   return (
     <Spin loading={loading} style={{ width: '100%' }}>
       <Radar
+        theme={theme}
         autoFit
         height={height || 400}
         data={folded}
