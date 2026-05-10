@@ -1,21 +1,29 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'node:path';
-import { mockApiPlugin } from './vite-plugins/mock';
+import svgr from 'vite-plugin-svgr';
+import { vitePluginForArco } from '@arco-plugins/vite-react';
+import setting from './src/settings.json';
 
+// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), mockApiPlugin()],
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
+    alias: [{ find: '@', replacement: '/src' }],
   },
-  server: {
-    port: 5173,
-  },
+  plugins: [
+    react(),
+    svgr(),
+    vitePluginForArco({
+      theme: '@arco-themes/react-arco-pro',
+      modifyVars: {
+        'arcoblue-6': setting.themeColor,
+      },
+    }),
+  ],
   css: {
-    modules: {
-      generateScopedName: '[name]__[local]___[hash:base64:5]',
+    preprocessorOptions: {
+      less: {
+        javascriptEnabled: true,
+      },
     },
   },
 });
