@@ -62,9 +62,22 @@ interactive menu for template kind, framework, preset, etc.
 Scaffolds a new page directory under `<root>/src/pages/<name>/` for an
 arco-design-pro project. Generates `index.tsx`, `style/index.module.less`,
 and `locale/index.ts` (single file with both `en-US` and `zh-CN` blocks,
-matching arco-design-pro's convention). Does NOT edit `src/routes.ts` or
-`src/locale/index.ts` — instead prints exact snippets to paste, since the
-edit targets vary across the Vite/Next/CRA variants and Simple/Full presets.
+matching arco-design-pro's convention).
+
+When the project also contains a parseable `src/routes.ts` and
+`src/locale/index.ts`, the command runs an **interactive placement picker**:
+
+- "At root" — page becomes a new top-level menu entry
+- "Under <existing top-level group>" — page becomes a child of that group
+- "+ Create a new top-level menu" — prompts for menu key and label, creates
+  the group with this page as its first child
+
+It then splices the new route into `src/routes.ts` and adds the matching
+`menu.*` translation to both the `en-US` and `zh-CN` blocks of
+`src/locale/index.ts`. Existing entries, comments outside the array, and
+passthrough fields like `requiredPermissions` survive the edit. If the
+files are missing or can't be parsed, the command falls back to scaffolding
+the page files only and printing snippets to paste.
 
 - `<name>` must be kebab-case (`user-list`, `data-analysis`).
 - `--type, -t` is `blank` (Card with title + paragraph) or `table`

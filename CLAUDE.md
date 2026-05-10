@@ -36,7 +36,9 @@ The implementation is split by responsibility — keep modules focused when addi
 
 - `src/bin.ts` — argv parsing via commander, the npm `bin` entrypoint
 - `src/initProject.ts` — top-level orchestrator; chains prompts → template → project transforms → git
-- `src/addPage.ts` — `arco add page` flow; pure `scaffoldPage()` for IO + thin clack UI wrapper
+- `src/addPage.ts` — `arco add page` flow; pure `scaffoldPage()` for IO + interactive placement picker
+- `src/routesEdit.ts` — parse arco-design-pro's `src/routes.ts` (eval'd JS literal) and splice new entries
+- `src/localeEdit.ts` — insert `menu.*` keys into the `en-US`/`zh-CN` blocks of `src/locale/index.ts`
 - `src/prompts.ts` — interactive selection menus (clack)
 - `src/template.ts` — download into `~/.arco_template_cache/<timestamp>/` then copy or invoke hook
 - `src/project.ts` — package.json merge, `@CONST_*@` placeholder rewrite, `gitignore`→`.gitignore` rename, initial git commit

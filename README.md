@@ -47,11 +47,14 @@ arco add page settings --type blank
 ```
 
 This scaffolds `src/pages/<name>/` with `index.tsx`, `style/index.module.less`,
-and `locale/index.ts` following arco-design-pro's conventions, and prints the
-exact snippets you need to paste into `src/routes.ts` and `src/locale/index.ts`
-to wire the page into the sidebar. The CLI deliberately does not edit those
-files for you because their layout differs across the Vite / Next / CRA
-variants and Simple / Full presets.
+and `locale/index.ts` following arco-design-pro's conventions.
+
+If `src/routes.ts` and `src/locale/index.ts` are present and follow arco-design-pro's
+shape, the CLI also runs an **interactive placement picker** — choose to place
+the new page at the menu root, under any existing top-level group, or create
+a new top-level menu group on the fly — and edits both files for you. If
+either source file is missing or has a non-standard shape, the CLI falls back
+to printing the exact snippets you need to paste in.
 
 `--type` accepts `blank` (a Card with title + paragraph) or `table` (a Card
 with header, primary action, and Arco `Table`).
