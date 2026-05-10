@@ -55,6 +55,10 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wn0x00/arco-cli.git"
+  },
   "files": [
     "lib"
   ],
