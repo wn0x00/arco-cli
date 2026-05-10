@@ -1,6 +1,6 @@
 {
   "name": "@guanzhu.me/arco-cli",
-  "version": "1.27.5",
+  "version": "0.1.0",
   "description": "Initialize a project from selectable Arco templates",
   "keywords": [
     "arco",
