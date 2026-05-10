@@ -43,6 +43,8 @@ const TEMPLATE_DIR_FOR_MONOREPO = 'template-for-monorepo';
 const CUSTOM_INIT_DIR = '.arco-cli';
 const ARCO_REACT_PACKAGE = '@arco-design/web-react';
 const ARCO_VUE_PACKAGE = '@arco-design/web-vue';
+const TEMPLATE_CACHE_DIR = path.resolve(os.homedir(), '.arco_template_cache');
+const TEMPLATE_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 function printSuccess(message: string) {
   console.log(chalk.green(message));
@@ -50,6 +52,56 @@ function printSuccess(message: string) {
 
 function printWarn(message: string) {
   console.log(chalk.yellow(message));
+}
+
+function cleanStaleTemplateCache() {
+  if (!fs.existsSync(TEMPLATE_CACHE_DIR)) return;
+  const cutoff = Date.now() - TEMPLATE_CACHE_TTL_MS;
+  let entries: string[];
+  try {
+    entries = fs.readdirSync(TEMPLATE_CACHE_DIR);
+  } catch {
+    return;
+  }
+  for (const entry of entries) {
+    const entryPath = path.join(TEMPLATE_CACHE_DIR, entry);
+    try {
+      if (fs.statSync(entryPath).mtimeMs < cutoff) {
+        fs.removeSync(entryPath);
+      }
+    } catch {
+      // best-effort cleanup; ignore individual failures
+    }
+  }
+}
+
+async function runTemplateHook(
+  hookPath: string,
+  templateName: string,
+  hookKind: 'init' | 'after-init',
+  hookArgs: Record<string, unknown>
+): Promise<unknown> {
+  let hook: (args: unknown) => unknown;
+  try {
+    hook = require(hookPath);
+  } catch (err) {
+    throw new Error(
+      `Failed to load ${hookKind} hook from template "${templateName}".\n` +
+        `  Hook path: ${hookPath}\n` +
+        `  This is likely a bug in the template package, not arco-cli.\n` +
+        `  Underlying error: ${(err as Error).message || String(err)}`
+    );
+  }
+  try {
+    return await hook(hookArgs);
+  } catch (err) {
+    throw new Error(
+      `Template "${templateName}" ${hookKind} hook threw an error.\n` +
+        `  Hook path: ${hookPath}\n` +
+        `  This is likely a bug in the template package, not arco-cli.\n` +
+        `  Underlying error: ${(err as Error).message || String(err)}`
+    );
+  }
 }
 
 async function execQuick(
@@ -432,7 +484,7 @@ async function copyTemplateContent({
   isForMonorepo,
   customInitFunctionParams,
 }: CreateProjectOptions) {
-  const tempDir = path.resolve(os.homedir(), '.arco_template_cache', `${Date.now()}`);
+  const tempDir = path.resolve(TEMPLATE_CACHE_DIR, `${Date.now()}`);
   const spinner = ora();
   let shouldKeepTempDir = false;
 
@@ -455,8 +507,7 @@ async function copyTemplateContent({
     } else if (fs.existsSync(templatePath)) {
       await fs.copy(templatePath, root, { overwrite: true });
     } else if (fs.existsSync(customInitPath)) {
-      const init = require(customInitPath);
-      await init({
+      await runTemplateHook(customInitPath, template, 'init', {
         ...customInitFunctionParams,
         projectPath: root,
       });
@@ -533,8 +584,7 @@ async function createProject(options: CreateProjectOptions) {
 
   try {
     if (afterInitPath) {
-      const afterInit = require(afterInitPath);
-      await afterInit({
+      await runTemplateHook(afterInitPath, options.template, 'after-init', {
         root: options.root,
         projectName: options.projectName,
         isForMonorepo: !!options.isForMonorepo,
@@ -561,6 +611,7 @@ async function createProject(options: CreateProjectOptions) {
 }
 
 export default async function initProject(options: InitProjectOptions) {
+  cleanStaleTemplateCache();
   const root = path.resolve(options.projectName);
 
   if (fs.pathExistsSync(root)) {
