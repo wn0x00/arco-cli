@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import initProject from './initProject';
+import addPage, { PageType } from './addPage';
 
 const program = new Command();
 
@@ -27,12 +28,32 @@ program
     });
   });
 
+const addCmd = program.command('add').description('add scaffolded content to an existing project');
+
+addCmd
+  .command('page <name>')
+  .description('scaffold a new page in an arco-design-pro Vite/Next project')
+  .option('-t, --type <type>', 'page type: blank | table', 'blank')
+  .option('-r, --root <path>', 'project root containing src/pages', process.cwd())
+  .action((name, options) => {
+    const type: PageType = options.type === 'table' ? 'table' : 'blank';
+    if (options.type !== 'blank' && options.type !== 'table') {
+      console.error(`Unknown --type "${options.type}". Use "blank" or "table".`);
+      process.exit(1);
+    }
+    addPage({ name, type, root: options.root }).catch((err) => {
+      console.error(err.message || err);
+      process.exit(1);
+    });
+  });
+
 program.on('--help', () => {
   console.log('');
   console.log('Examples:');
   console.log('  $ arco init my-app');
   console.log('  $ arco init my-app --template arco-design-pro');
   console.log('  $ arco init my-app --template file:../my-template');
+  console.log('  $ arco add page user-list --type table');
 });
 
 program.parse(process.argv);

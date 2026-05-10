@@ -6,7 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A maintained fork of the abandoned `arco-cli`, published as `@guanzhu.me/arco-cli`. It scaffolds Arco UI projects from npm-distributed template packages (notably `arco-design-pro` for admin dashboards). The CLI's job is to download a template, copy or invoke its content into a target directory, install dependencies, and make an initial git commit.
 
-Public interface: `arco init <projectName> [--template <pkg-or-file:path>] [--skip-install] [--skip-git]`.
+Public interface:
+- `arco init <projectName> [--template <pkg-or-file:path>] [--skip-install] [--skip-git]`
+- `arco add page <name> [--type blank|table] [--root <path>]`
 
 A more detailed user/agent-facing reference lives in `.claude/skills/arco-cli/SKILL.md` — read it for template authoring conventions, the full template list with maintenance status, and example invocations.
 
@@ -34,6 +36,7 @@ The implementation is split by responsibility — keep modules focused when addi
 
 - `src/bin.ts` — argv parsing via commander, the npm `bin` entrypoint
 - `src/initProject.ts` — top-level orchestrator; chains prompts → template → project transforms → git
+- `src/addPage.ts` — `arco add page` flow; pure `scaffoldPage()` for IO + thin clack UI wrapper
 - `src/prompts.ts` — interactive selection menus (clack)
 - `src/template.ts` — download into `~/.arco_template_cache/<timestamp>/` then copy or invoke hook
 - `src/project.ts` — package.json merge, `@CONST_*@` placeholder rewrite, `gitignore`→`.gitignore` rename, initial git commit

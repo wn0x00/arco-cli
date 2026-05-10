@@ -37,6 +37,25 @@ Skip dependency install or git init:
 arco init my-app --skip-install --skip-git
 ```
 
+## Adding a page to an existing arco-design-pro project
+
+Run from the project root (the directory containing `src/pages/`):
+
+```bash
+arco add page user-list --type table
+arco add page settings --type blank
+```
+
+This scaffolds `src/pages/<name>/` with `index.tsx`, `style/index.module.less`,
+and `locale/index.ts` following arco-design-pro's conventions, and prints the
+exact snippets you need to paste into `src/routes.ts` and `src/locale/index.ts`
+to wire the page into the sidebar. The CLI deliberately does not edit those
+files for you because their layout differs across the Vite / Next / CRA
+variants and Simple / Full presets.
+
+`--type` accepts `blank` (a Card with title + paragraph) or `table` (a Card
+with header, primary action, and Arco `Table`).
+
 ## Template structure
 
 A template is just an npm package (or a local directory) that contains either:
