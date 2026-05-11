@@ -143,15 +143,21 @@ function PageLayout() {
       return _routes.map((route) => {
         const { breadcrumb = true, ignore } = route;
         const iconDom = getIconFromKey(route.key);
+        const label = locale[route.name] || route.name;
         const titleDom = (
           <>
-            {iconDom} {locale[route.name] || route.name}
+            {iconDom} {label}
           </>
         );
+        // Matches official Arco Pro: a top-level section adds TWO
+        // breadcrumb items — first the icon alone, then the section
+        // label. Nested routes only contribute their own label.
+        const isTopLevel = parentNode.length === 0;
+        const ownCrumbs = isTopLevel ? [iconDom, label] : [label];
 
         routeMap.current.set(
           `/${route.key}`,
-          breadcrumb ? [...parentNode, route.name] : []
+          breadcrumb ? [...parentNode, ...ownCrumbs] : []
         );
 
         const visibleChildren = (route.children || []).filter((child) => {
@@ -159,7 +165,9 @@ function PageLayout() {
           if (ignore || route.ignore) {
             routeMap.current.set(
               `/${child.key}`,
-              breadcrumb ? [...parentNode, route.name, child.name] : []
+              breadcrumb
+                ? [...parentNode, ...ownCrumbs, locale[child.name] || child.name]
+                : []
             );
           }
 
@@ -173,7 +181,7 @@ function PageLayout() {
           menuMap.current.set(route.key, { subMenu: true });
           return (
             <SubMenu key={route.key} title={titleDom}>
-              {travel(visibleChildren, level + 1, [...parentNode, route.name])}
+              {travel(visibleChildren, level + 1, [...parentNode, ...ownCrumbs])}
             </SubMenu>
           );
         }
