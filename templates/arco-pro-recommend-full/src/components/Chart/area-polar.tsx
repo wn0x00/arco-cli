@@ -1,90 +1,55 @@
-import React from 'react';
-import {
-  Chart,
-  Line,
-  Axis,
-  Area,
-  Tooltip,
-  Coordinate,
-  Legend,
-} from 'bizcharts';
-import CustomTooltip from './customer-tooltip';
+import { useMemo } from 'react';
+import { VChart } from '@visactor/react-vchart';
 import { Spin } from '@arco-design/web-react';
-import DataSet from '@antv/data-set';
+
+const radarColors = ['#313CA9', '#21CCFF', '#249EFF'];
 
 interface AreaPolarProps {
-  data: any[];
+  /** Rows shaped like `{ item, A, B, C }` — one numeric column per series. */
+  data: Array<Record<string, number | string>>;
   loading: boolean;
+  /** Numeric columns of `data` to render as separate radar series. */
   fields: string[];
   height: number;
 }
-function AreaPolar(props: AreaPolarProps) {
-  const { data, loading, fields, height } = props;
 
-  const { DataView } = DataSet;
-  const dv = new DataView().source(data);
-  dv.transform({
-    type: 'fold',
-    fields: fields, // 展开字段集
-    key: 'category', // key字段
-    value: 'score', // value字段
-  });
+function AreaPolar({ data, loading, fields, height }: AreaPolarProps) {
+  // Fold `{ item, A, B, C }` into `{ item, category, score }` so each
+  // numeric field becomes its own radar series.
+  const folded = useMemo(() => {
+    const out: Array<{ item: unknown; category: string; score: number }> = [];
+    for (const row of data ?? []) {
+      for (const f of fields ?? []) {
+        out.push({ item: row.item, category: f, score: Number(row[f]) || 0 });
+      }
+    }
+    return out;
+  }, [data, fields]);
+
+  const spec = {
+    type: 'radar' as const,
+    data: [{ id: 'radar', values: folded }],
+    categoryField: 'item',
+    valueField: 'score',
+    seriesField: 'category',
+    color: radarColors,
+    area: { visible: true, style: { fillOpacity: 0.25 } },
+    line: { style: { lineWidth: 2 } },
+    point: { visible: true, style: { size: 4 } },
+    axes: [{ orient: 'angle' }, { orient: 'radius', visible: false, min: 0, max: 80 }],
+    legends: { visible: true, orient: 'right', item: { shape: { style: { symbolType: 'circle' } } } },
+    tooltip: {
+      mark: {
+        content: [{ key: (d: { category: string }) => d.category, value: (d: { score: number }) => d.score }],
+      },
+    },
+  };
 
   return (
     <Spin loading={loading} style={{ width: '100%' }}>
-      <Chart
-        height={height || 400}
-        padding={0}
-        data={dv.rows}
-        autoFit
-        scale={{
-          score: {
-            min: 0,
-            max: 80,
-          },
-        }}
-        interactions={['legend-highlight']}
-        className={'chart-wrapper'}
-      >
-        <Coordinate type="polar" radius={0.8} />
-        <Tooltip shared>
-          {(title, items) => {
-            return <CustomTooltip title={title} data={items} />;
-          }}
-        </Tooltip>
-        <Line
-          position="item*score"
-          size="2"
-          color={['category', ['#313CA9', '#21CCFF', '#249EFF']]}
-        />
-        <Area
-          position="item*score"
-          tooltip={false}
-          color={[
-            'category',
-            [
-              'rgba(49, 60, 169, 0.4)',
-              'rgba(33, 204, 255, 0.4)',
-              'rgba(36, 158, 255, 0.4)',
-            ],
-          ]}
-        />
-        <Axis name="score" label={false} />
-        <Legend
-          position="right"
-          marker={(_, index) => {
-            return {
-              symbol: 'circle',
-              style: {
-                r: 4,
-                lineWidth: 0,
-                fill: ['#313CA9', '#21CCFF', '#249EFF'][index],
-              },
-            };
-          }}
-          name="category"
-        />
-      </Chart>
+      <div style={{ width: '100%', height: height || 400 }}>
+        <VChart spec={spec} />
+      </div>
     </Spin>
   );
 }

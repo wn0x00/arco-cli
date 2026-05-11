@@ -8,6 +8,20 @@ import zhCN from '@arco-design/web-react/es/locale/zh-CN';
 import enUS from '@arco-design/web-react/es/locale/en-US';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import axios from 'axios';
+import { VChartArcoThemeHelper } from '@visactor/vchart-arco-theme';
+
+// Manual helper instantiation so we can mutate the token map BEFORE
+// init() runs. The default token map binds `palette.backgroundColor`
+// to `--color-bg-1` (page background); Arco Card body uses `--color-bg-2`.
+// In dark mode those resolve to different colours (#17171a vs #232324),
+// so the chart canvas paints a visible darker square inside the card.
+// Re-pointing it at `--color-bg-2` makes the canvas match the card in
+// both light and dark.
+const vchartArcoHelper = new VChartArcoThemeHelper({});
+(vchartArcoHelper.tokenMap.palette as { backgroundColor: string }).backgroundColor = '--color-bg-2';
+vchartArcoHelper.init();
+
+
 import rootReducer from './store';
 import PageLayout from './layout';
 import { GlobalContext } from './context';

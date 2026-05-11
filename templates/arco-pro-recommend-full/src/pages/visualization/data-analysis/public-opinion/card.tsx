@@ -1,32 +1,15 @@
-import React from 'react';
 import { Skeleton, Statistic, Typography } from '@arco-design/web-react';
 import cs from 'classnames';
-import {
-  Chart,
-  Line,
-  Interval,
-  Coordinate,
-  Interaction,
-  Tooltip,
-  G2,
-  Legend,
-} from 'bizcharts';
-
+import { VChart } from '@visactor/react-vchart';
 import { IconArrowRise, IconArrowFall } from '@arco-design/web-react/icon';
 import styles from '../style/public-opinion.module.less';
 
 const { Title, Text } = Typography;
-const basicChartProps = {
-  pure: true,
-  autoFit: true,
-  height: 80,
-  padding: [10, 10, 0, 10],
-};
 
 export interface PublicOpinionCardProps {
   key: string;
   title: string;
-  chartData?: any[];
+  chartData?: Array<{ x: number | string; y: number; name?: string }>;
   chartType: 'line' | 'interval' | 'pie';
   count?: number;
   increment?: boolean;
@@ -35,100 +18,88 @@ export interface PublicOpinionCardProps {
   loading?: boolean;
 }
 
-function SimpleLine(props: { chartData: any[] }) {
-  const { chartData } = props;
-  return (
-    <Chart data={chartData} {...basicChartProps}>
-      <Line
-        position="x*y"
-        size={3}
-        shape={'smooth'}
-        color={['name', ['#165DFF', 'rgba(106,161,255,0.3)']]}
-        style={{
-          fields: ['name'],
-          callback: (name) => {
-            if (name === '类目2') {
-              return { lineDash: [8, 10] };
-            }
-            return {};
-          },
-        }}
-      />
-    </Chart>
-  );
-}
+const sparkBox = { width: '100%', height: 80 } as const;
 
-function SimpleInterval(props: { chartData: any[] }) {
-  const { chartData } = props;
-
-  G2.registerShape('interval', 'border-radius', {
-    draw(cfg, container) {
-      const points = cfg.points as unknown as { x: string; y: number };
-      let path = [];
-      path.push(['M', points[0].x, points[0].y]);
-      path.push(['L', points[1].x, points[1].y]);
-      path.push(['L', points[2].x, points[2].y]);
-      path.push(['L', points[3].x, points[3].y]);
-      path.push('Z');
-      path = this.parsePath(path); // 将 0 - 1 转化为画布坐标
-
-      const group = container.addGroup();
-      group.addShape('rect', {
-        attrs: {
-          x: path[1][1], // 矩形起始点为左上角
-          y: path[1][2],
-          width: path[2][1] - path[1][1],
-          height: path[0][2] - path[1][2],
-          fill: cfg.color,
-          radius: (path[2][1] - path[1][1]) / 2,
-        },
-      });
-      return group;
+function SimpleLine({ chartData }: { chartData: Array<{ x: number | string; y: number; name?: string }> }) {
+  const spec = {
+    type: 'line' as const,
+    data: [{ id: 'spark', values: chartData ?? [] }],
+    xField: 'x',
+    yField: 'y',
+    seriesField: 'name',
+    color: ['#165DFF', 'rgba(106,161,255,0.3)'],
+    line: {
+      style: {
+        curveType: 'monotone',
+        lineWidth: 3,
+        lineDash: (datum: { name?: string }) => (datum.name === '类目2' ? [8, 10] : []),
+      },
     },
-  });
-
+    point: { visible: false },
+    axes: [
+      { orient: 'left', visible: false },
+      { orient: 'bottom', visible: false },
+    ],
+    legends: { visible: false },
+    tooltip: { mark: { content: [{ key: 'name', value: 'y' }] } },
+  };
   return (
-    <Chart data={chartData} {...basicChartProps}>
-      <Interval
-        position="x*y"
-        color={[
-          'x',
-          (xVal) => {
-            if (Number(xVal) % 2 === 0) {
-              return '#2CAB40';
-            }
-            return '#86DF6C';
-          },
-        ]}
-        shape="border-radius"
-      />
-    </Chart>
+    <div style={sparkBox}>
+      <VChart spec={spec} />
+    </div>
   );
 }
 
-function SimplePie(props: { chartData: any[] }) {
-  const { chartData } = props;
-
+function SimpleInterval({ chartData }: { chartData: Array<{ x: number | string; y: number }> }) {
+  const values = chartData ?? [];
+  const spec = {
+    type: 'bar' as const,
+    data: [{ id: 'spark', values }],
+    xField: 'x',
+    yField: 'y',
+    bar: {
+      style: {
+        fill: (datum: { x: number | string }) => (Number(datum.x) % 2 === 0 ? '#2CAB40' : '#86DF6C'),
+        cornerRadius: 999,
+      },
+    },
+    barWidth: 6,
+    axes: [
+      { orient: 'left', visible: false },
+      { orient: 'bottom', visible: false },
+    ],
+    legends: { visible: false },
+    tooltip: { mark: { content: [{ key: 'x', value: 'y' }] } },
+  };
   return (
-    <Chart data={chartData} {...basicChartProps} padding={[0, 20, 0, 0]}>
-      <Coordinate type="theta" radius={0.8} innerRadius={0.7} />
-      <Interval
-        adjust="stack"
-        position="count"
-        shape="sliceShape"
-        color={['name', ['#8D4EDA', '#00B2FF', '#165DFF']]}
-        label={false}
-      />
-      <Tooltip visible={true} />
-      <Legend position="right" />
-      <Interaction type="element-single-selected" />
-    </Chart>
+    <div style={sparkBox}>
+      {values.length > 0 && <VChart spec={spec} />}
+    </div>
+  );
+}
+
+function SimplePie({ chartData }: { chartData: Array<{ name: string; count: number }> }) {
+  const spec = {
+    type: 'pie' as const,
+    data: [{ id: 'spark', values: chartData ?? [] }],
+    valueField: 'count',
+    categoryField: 'name',
+    color: ['#8D4EDA', '#00B2FF', '#165DFF'],
+    innerRadius: 0.7,
+    outerRadius: 0.85,
+    label: { visible: false },
+    legends: { visible: true, orient: 'right', item: { shape: { style: { symbolType: 'circle' } } } },
+    tooltip: { mark: { content: [{ key: 'name', value: 'count' }] } },
+  };
+  return (
+    <div style={sparkBox}>
+      <VChart spec={spec} />
+    </div>
   );
 }
 
 function PublicOpinionCard(props: PublicOpinionCardProps) {
-  const { chartType, title, count, increment, diff, chartData, loading } =
-    props;
+  const { chartType, title, count, increment, diff, chartData, loading } = props;
   const className = cs(styles.card, styles[`card-${chartType}`]);
 
   return (
@@ -166,17 +137,14 @@ function PublicOpinionCard(props: PublicOpinionCardProps) {
       </div>
       <div className={styles.chart}>
         {loading ? (
-          <Skeleton
-            text={{ rows: 3, width: Array(3).fill('100%') }}
-            animation
-          />
+          <Skeleton text={{ rows: 3, width: Array(3).fill('100%') }} animation />
         ) : (
           <>
-            {chartType === 'interval' && (
-              <SimpleInterval chartData={chartData} />
+            {chartType === 'interval' && <SimpleInterval chartData={chartData ?? []} />}
+            {chartType === 'line' && <SimpleLine chartData={chartData ?? []} />}
+            {chartType === 'pie' && (
+              <SimplePie chartData={(chartData ?? []) as unknown as Array<{ name: string; count: number }>} />
             )}
-            {chartType === 'line' && <SimpleLine chartData={chartData} />}
-            {chartType === 'pie' && <SimplePie chartData={chartData} />}
           </>
         )}
       </div>

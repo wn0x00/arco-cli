@@ -1,74 +1,42 @@
-import React from 'react';
-import { Chart, Tooltip, Interval, Axis, Coordinate, G2 } from 'bizcharts';
+import { VChart } from '@visactor/react-vchart';
 import { Spin } from '@arco-design/web-react';
-import CustomTooltip from './customer-tooltip';
 
 function HorizontalInterval({
   data,
   loading,
   height,
 }: {
-  data: any[];
+  data: Array<{ name: string; count: number }>;
   loading: boolean;
   height?: number;
 }) {
-  G2.registerShape('interval', 'border-radius', {
-    draw(cfg, container) {
-      const points = cfg.points as unknown as { x: string; y: number };
-      let path = [];
-      path.push(['M', points[0].x, points[0].y]);
-      path.push(['L', points[1].x, points[1].y]);
-      path.push(['L', points[2].x, points[2].y]);
-      path.push(['L', points[3].x, points[3].y]);
-      path.push('Z');
-      path = this.parsePath(path); // 将 0 - 1 转化为画布坐标
-
-      const group = container.addGroup();
-      const radius = (path[1][2] - path[2][2]) / 2;
-      group.addShape('rect', {
-        attrs: {
-          x: path[0][1], // 矩形起始点为左上角
-          y: path[0][2] - radius * 2,
-          width: path[1][1] - path[0][1],
-          height: path[1][2] - path[2][2],
-          fill: cfg.color,
-          radius: radius,
-        },
-      });
-      return group;
+  const values = data ?? [];
+  const spec = {
+    type: 'bar' as const,
+    direction: 'horizontal' as const,
+    data: [{ id: 'bars', values }],
+    xField: 'count',
+    yField: 'name',
+    barWidth: 10,
+    // Pill shape — cornerRadius >= half-height fully rounds both ends,
+    // matching the BizCharts custom `border-radius` original.
+    bar: { style: { fill: '#4086FF', cornerRadius: 999 } },
+    axes: [
+      { orient: 'left' },
+      { orient: 'bottom', label: { formatMethod: (v: number) => `${Number(v) / 1000}k` } },
+    ],
+    tooltip: {
+      mark: {
+        content: [{ key: 'name', value: (d: { count: number }) => Number(d.count).toLocaleString() }],
+      },
     },
-  });
+  };
 
   return (
     <Spin loading={loading} style={{ width: '100%' }}>
-      <Chart
-        height={height || 370}
-        padding="auto"
-        data={data}
-        autoFit
-        className={'chart-wrapper'}
-      >
-        <Coordinate transpose />
-        <Interval
-          color="#4086FF"
-          position="name*count"
-          size={10}
-          shape="border-radius"
-        />
-        <Tooltip>
-          {(title, items) => {
-            return <CustomTooltip title={title} data={items} />;
-          }}
-        </Tooltip>
-        <Axis
-          name="count"
-          label={{
-            formatter(text) {
-              return `${Number(text) / 1000}k`;
-            },
-          }}
-        />
-      </Chart>
+      <div style={{ width: '100%', height: height || 370 }}>
+        {values.length > 0 && <VChart spec={spec} />}
+      </div>
     </Spin>
   );
 }
