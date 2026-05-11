@@ -109,6 +109,9 @@ function BasicProfile() {
         <Table
           loading={tableLoading}
           data={tableData}
+          rowKey={(record: any, index?: number) =>
+            `${record?.contentId ?? 'row'}-${index ?? 0}`
+          }
           columns={[
             {
               dataIndex: 'contentId',

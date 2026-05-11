@@ -11,7 +11,11 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    svgr(),
+    // vite-plugin-svgr v4 defaults to URL imports unless `?react` is
+    // appended. Force every `*.svg` import to return a React component
+    // as the default export so the legacy `import Logo from './logo.svg'`
+    // usages stay valid.
+    svgr({ include: '**/*.svg', svgrOptions: { exportType: 'default' } }),
     vitePluginForArco({
       theme: '@arco-themes/react-arco-pro',
       modifyVars: {
