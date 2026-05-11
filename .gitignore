@@ -80,3 +80,8 @@ package-lock.json
 
 packages/*/lib
 .claude/settings.local.json
+
+# Local smoke sandbox(es) — created on demand to test bundled templates.
+.smoke*/
+templates/*/dist/
+templates/*/node_modules/
