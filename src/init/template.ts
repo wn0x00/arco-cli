@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs-extra';
-import { execQuick } from '../utils/exec';
+import { execFileQuick, formatCommand } from '../utils/exec';
 import { newCacheEntryPath } from '../utils/cache';
 import { runTemplateHook } from './templateHook';
 
@@ -39,6 +39,14 @@ export function getPackageInfo(installPackage: string): { name: string; version?
   return { name: installPackage };
 }
 
+function assertSafeInstallSpec(spec: string): void {
+  if (/[\0\r\n&|<>]/.test(spec)) {
+    throw new Error(
+      `Unsafe package spec "${spec}". Avoid shell control characters in template names and file paths.`
+    );
+  }
+}
+
 /**
  * Install one or more packages into `root`. If `allowYarn` is true and the
  * environment has yarn, prefer it over npm.
@@ -53,22 +61,28 @@ export async function installPackages(
     : dependencies
       ? [dependencies]
       : [];
+  dependencyList.forEach(assertSafeInstallSpec);
+
   let command = 'npm';
   let args = ['install'].concat(dependencyList);
+  const shell = process.platform === 'win32';
 
   if (allowYarn) {
-    const { stdout } = await execQuick('yarn -v', { cwd: root });
+    const { stdout } = await execFileQuick('yarn', ['-v'], { cwd: root, shell });
     if (/^\d+\.\d+/.test(stdout)) {
       command = 'yarn';
       args = dependencies ? ['add'].concat(dependencyList) : [];
     }
   }
 
-  const commandExec = `${command} ${args.join(' ')}`;
-  const { code, stderr } = await execQuick(commandExec, { cwd: root, silent: false });
+  const { code, stderr } = await execFileQuick(command, args, {
+    cwd: root,
+    silent: false,
+    shell,
+  });
 
   if (code !== 0) {
-    throw new Error(`Command "${commandExec}" failed:\n${stderr}`);
+    throw new Error(`Command "${formatCommand(command, args)}" failed:\n${stderr}`);
   }
 }
 

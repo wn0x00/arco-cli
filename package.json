@@ -14,6 +14,8 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('lib',{recursive:true,force:true})\"",
+    "prebuild": "npm run clean",
     "build": "tsc",
     "dev": "tsc -w",
     "lint": "eslint src",

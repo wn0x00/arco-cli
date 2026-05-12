@@ -11,6 +11,7 @@ import {
   promptTemplate,
   PromptedTemplate,
 } from '../init/prompts';
+import { assertSafeProjectRoot } from '../init/projectRoot';
 import { downloadAndCopyTemplate, installPackages, removeCacheEntry } from '../init/template';
 import { adoptTemplateGitignore, transformToProject, tryInitialGitCommit } from '../init/project';
 import { runTemplateHook } from '../init/templateHook';
@@ -109,6 +110,7 @@ async function createProject(options: CreateProjectOptions): Promise<void> {
   const packageName = (options.packageJson?.name as string) || options.projectName;
 
   log.step(`Creating project at ${chalk.cyan(options.root)}`);
+  assertSafeProjectRoot(options.root);
   fs.emptyDirSync(options.root);
 
   const downloadSpinner = spinner();
@@ -193,6 +195,7 @@ export default async function initProject(options: InitProjectOptions): Promise<
   intro(chalk.bold('arco init'));
 
   if (fs.pathExistsSync(root)) {
+    assertSafeProjectRoot(root);
     const overwrite = await confirmOverwrite(root);
     if (!overwrite) {
       outro(chalk.yellow('Canceled'));

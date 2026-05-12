@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs-extra';
-import { execQuick } from '../utils/exec';
+import { execFileQuick } from '../utils/exec';
 
 const ARCO_REACT_PACKAGE = '@arco-design/web-react';
 const ARCO_VUE_PACKAGE = '@arco-design/web-vue';
@@ -95,12 +95,13 @@ export function adoptTemplateGitignore(root: string): void {
  * failure and report a warning, not abort.
  */
 export async function tryInitialGitCommit(root: string, packageName: string): Promise<boolean> {
-  const { code: codeInit } = await execQuick('git init', { cwd: root });
+  const { code: codeInit } = await execFileQuick('git', ['init'], { cwd: root });
   if (codeInit !== 0) return false;
 
-  const { code: codeAdd } = await execQuick('git add -A', { cwd: root });
-  const { code: codeCommit } = await execQuick(
-    `git commit -m "initialize ${packageName}" --no-verify`,
+  const { code: codeAdd } = await execFileQuick('git', ['add', '-A'], { cwd: root });
+  const { code: codeCommit } = await execFileQuick(
+    'git',
+    ['commit', '-m', `initialize ${packageName}`, '--no-verify'],
     { cwd: root }
   );
 
