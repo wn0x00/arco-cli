@@ -28,8 +28,8 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
 
-      - name: Build CLI package
-        run: yarn build
+      - name: Verify CLI package
+        run: yarn verify
 
       - name: Publish CLI package
-        run: npm publish --access public --provenance
+        run: npm publish --access public --provenance --ignore-scripts

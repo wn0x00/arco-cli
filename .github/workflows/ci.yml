@@ -23,9 +23,7 @@ jobs:
           cache: yarn
 
       - run: yarn install --frozen-lockfile --ignore-scripts
-      - run: yarn lint
-      - run: yarn build
-      - run: yarn test
+      - run: yarn verify
 
   template-build:
     # Heavy job: install React/Vite/etc into the bundled templates and make

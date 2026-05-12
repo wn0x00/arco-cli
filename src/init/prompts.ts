@@ -80,7 +80,7 @@ export async function promptTemplate(defaultName?: string): Promise<PromptedTemp
         {
           value: 'pro-recommend',
           label: 'Arco Pro (Recommend)',
-          hint: 'Vite 7 + Arco 2.66 — bundled, modern',
+          hint: 'React 19 + Vite 7 + Arco 2.66 — bundled, modern',
         },
         { value: 'pro-react', label: 'Arco Pro React' },
         { value: 'pro-vue', label: 'Arco Pro Vue' },
