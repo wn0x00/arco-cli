@@ -19,7 +19,7 @@ import './mock';
 
 function GroupForm() {
   const t = useLocale(locale);
-  const formRef = useRef<FormInstance>();
+  const formRef = useRef<FormInstance>(null);
   const [loading, setLoading] = useState(false);
 
   function submit(data) {

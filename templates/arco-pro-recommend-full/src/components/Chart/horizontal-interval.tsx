@@ -1,4 +1,4 @@
-import { VChart } from '@visactor/react-vchart';
+import { VChart, type ISpec } from '@visactor/react-vchart';
 import { Spin } from '@arco-design/web-react';
 
 function HorizontalInterval({
@@ -11,7 +11,7 @@ function HorizontalInterval({
   height?: number;
 }) {
   const values = data ?? [];
-  const spec = {
+  const spec: ISpec = {
     type: 'bar' as const,
     direction: 'horizontal' as const,
     data: [{ id: 'bars', values }],
@@ -23,11 +23,19 @@ function HorizontalInterval({
     bar: { style: { fill: '#4086FF', cornerRadius: 999 } },
     axes: [
       { orient: 'left' },
-      { orient: 'bottom', label: { formatMethod: (v: number) => `${Number(v) / 1000}k` } },
+      {
+        orient: 'bottom',
+        label: { formatMethod: (v) => `${Number(v) / 1000}k` },
+      },
     ],
     tooltip: {
       mark: {
-        content: [{ key: 'name', value: (d: { count: number }) => Number(d.count).toLocaleString() }],
+        content: [
+          {
+            key: 'name',
+            value: (d: { count: number }) => Number(d.count).toLocaleString(),
+          },
+        ],
       },
     },
   };

@@ -33,7 +33,7 @@ interface MessageListProps {
   onItemClick?: (item: MessageItemData, index: number) => void;
   onAllBtnClick?: (
     unReadData: MessageItemData[],
-    data: MessageItemData[]
+    data: MessageItemData[],
   ) => void;
 }
 
@@ -43,11 +43,11 @@ function MessageList(props: MessageListProps) {
 
   function onItemClick(item: MessageItemData, index: number) {
     if (item.status) return;
-    props.onItemClick && props.onItemClick(item, index);
+    props.onItemClick?.(item, index);
   }
 
   function onAllBtnClick() {
-    props.onAllBtnClick && props.onAllBtnClick(unReadData, data);
+    props.onAllBtnClick?.(unReadData, data);
   }
 
   return (

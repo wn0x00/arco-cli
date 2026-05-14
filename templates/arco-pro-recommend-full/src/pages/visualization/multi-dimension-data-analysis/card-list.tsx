@@ -1,7 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Statistic, Typography, Spin, Grid, Card, Skeleton } from '@arco-design/web-react';
+import {
+  Statistic,
+  Typography,
+  Spin,
+  Grid,
+  Card,
+  Skeleton,
+} from '@arco-design/web-react';
 import cs from 'classnames';
-import { VChart } from '@visactor/react-vchart';
+import { VChart, type ISpec } from '@visactor/react-vchart';
 import axios from 'axios';
 import useLocale from '@/utils/useLocale';
 import locale from './locale';
@@ -12,7 +19,9 @@ const { Row, Col } = Grid;
 const { Title } = Typography;
 
 export interface CardProps {
-  key: string;
+  // React-reserved name — optional here so the parent can destructure
+  // it out before spreading without TypeScript complaining.
+  key?: string;
   title?: string;
   chartData?: Array<{ x: number | string; y: number; name?: string }>;
   chartType: string;
@@ -25,7 +34,7 @@ export interface CardProps {
 const sparkBox = { width: '100%', height: 80 } as const;
 
 function SimpleLine({ chartData }: { chartData: CardProps['chartData'] }) {
-  const spec = {
+  const spec: ISpec = {
     type: 'line' as const,
     data: [{ id: 'spark', values: chartData ?? [] }],
     xField: 'x',
@@ -36,7 +45,8 @@ function SimpleLine({ chartData }: { chartData: CardProps['chartData'] }) {
       style: {
         curveType: 'monotone',
         lineWidth: 2,
-        lineDash: (datum: { name?: string }) => (datum.name === '类目2' ? [6, 6] : []),
+        lineDash: (datum: { name?: string }) =>
+          datum.name === '类目2' ? [6, 6] : [],
       },
     },
     point: { visible: false },
@@ -45,7 +55,16 @@ function SimpleLine({ chartData }: { chartData: CardProps['chartData'] }) {
       { orient: 'bottom', visible: false },
     ],
     legends: { visible: false },
-    tooltip: { mark: { content: [{ key: 'y', value: (d: { y: number }) => Number(d.y).toLocaleString() }] } },
+    tooltip: {
+      mark: {
+        content: [
+          {
+            key: 'y',
+            value: (d: { y: number }) => Number(d.y).toLocaleString(),
+          },
+        ],
+      },
+    },
   };
   return (
     <div style={sparkBox}>
@@ -56,14 +75,15 @@ function SimpleLine({ chartData }: { chartData: CardProps['chartData'] }) {
 
 function SimpleInterval({ chartData }: { chartData: CardProps['chartData'] }) {
   const values = chartData ?? [];
-  const spec = {
+  const spec: ISpec = {
     type: 'bar' as const,
     data: [{ id: 'spark', values }],
     xField: 'x',
     yField: 'y',
     bar: {
       style: {
-        fill: (datum: { x: number | string }) => (Number(datum.x) % 2 === 0 ? '#86DF6C' : '#468DFF'),
+        fill: (datum: { x: number | string }) =>
+          Number(datum.x) % 2 === 0 ? '#86DF6C' : '#468DFF',
         cornerRadius: 2,
       },
     },
@@ -72,17 +92,25 @@ function SimpleInterval({ chartData }: { chartData: CardProps['chartData'] }) {
       { orient: 'bottom', visible: false },
     ],
     legends: { visible: false },
-    tooltip: { mark: { content: [{ key: 'x', value: (d: { y: number }) => Number(d.y).toLocaleString() }] } },
+    tooltip: {
+      mark: {
+        content: [
+          {
+            key: 'x',
+            value: (d: { y: number }) => Number(d.y).toLocaleString(),
+          },
+        ],
+      },
+    },
   };
   return (
-    <div style={sparkBox}>
-      {values.length > 0 && <VChart spec={spec} />}
-    </div>
+    <div style={sparkBox}>{values.length > 0 && <VChart spec={spec} />}</div>
   );
 }
 
 function CardBlock(props: CardProps) {
-  const { chartType, title, count, increment, diff, chartData, loading } = props;
+  const { chartType, title, count, increment, diff, chartData, loading } =
+    props;
 
   return (
     <Card className={styles.card}>
@@ -98,7 +126,11 @@ function CardBlock(props: CardProps) {
           extra={
             <div className={styles['compare-yesterday']}>
               {loading ? (
-                <Skeleton text={{ rows: 1 }} style={{ width: '100px' }} animation />
+                <Skeleton
+                  text={{ rows: 1 }}
+                  style={{ width: '100px' }}
+                  animation
+                />
               ) : (
                 <span
                   className={cs(styles['diff'], {
@@ -135,7 +167,7 @@ function CardList() {
   const t = useLocale(locale);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<CardProps[]>(
-    cardInfo.map((item) => ({ key: item.key, chartType: item.type }))
+    cardInfo.map((item) => ({ key: item.key, chartType: item.type })),
   );
 
   const getData = async () => {
@@ -147,7 +179,9 @@ function CardList() {
     });
 
     setLoading(true);
-    const result = await Promise.all(requestList).finally(() => setLoading(false));
+    const result = await Promise.all(requestList).finally(() =>
+      setLoading(false),
+    );
     setData(result);
   };
 
@@ -164,11 +198,17 @@ function CardList() {
 
   return (
     <Row gutter={16}>
-      {formatData.map((item, index) => (
-        <Col span={6} key={index}>
-          <CardBlock {...item} loading={loading} />
-        </Col>
-      ))}
+      {formatData.map((item, index) => {
+        // Pull `key` out of the spread — React 19 warns when a key
+        // field rides along inside {...props} because it's silently
+        // swallowed and looks like a misplaced React key.
+        const { key, ...rest } = item;
+        return (
+          <Col span={6} key={key ?? index}>
+            <CardBlock {...rest} loading={loading} />
+          </Col>
+        );
+      })}
     </Row>
   );
 }

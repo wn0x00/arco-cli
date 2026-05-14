@@ -1,4 +1,4 @@
-import { VChart } from '@visactor/react-vchart';
+import { VChart, type ISpec } from '@visactor/react-vchart';
 import { Spin } from '@arco-design/web-react';
 
 const lineColors = ['#722ED1', '#33D1C9', '#F77234', '#165DFF'];
@@ -10,7 +10,7 @@ function MultiAreaLine({
   data: Array<{ time: string; count: number; name: string }>;
   loading: boolean;
 }) {
-  const spec = {
+  const spec: ISpec = {
     type: 'area' as const,
     data: [{ id: 'multi', values: data ?? [] }],
     xField: 'time',
@@ -22,14 +22,20 @@ function MultiAreaLine({
     area: { style: { curveType: 'monotone', fillOpacity: 0.3 } },
     point: { visible: false },
     axes: [
-      { orient: 'left', label: { formatMethod: (v: number) => `${Number(v) / 100} k` } },
+      {
+        orient: 'left',
+        label: { formatMethod: (v) => `${Number(v) / 100} k` },
+      },
       { orient: 'bottom' },
     ],
     legends: { visible: false },
     tooltip: {
       mark: {
         content: [
-          { key: (d: { name: string }) => d.name, value: (d: { count: number }) => Number(d.count).toLocaleString() },
+          {
+            key: (d: { name: string }) => d.name,
+            value: (d: { count: number }) => Number(d.count).toLocaleString(),
+          },
         ],
       },
     },

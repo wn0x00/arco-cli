@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, Spin, Typography } from '@arco-design/web-react';
-import { VChart } from '@visactor/react-vchart';
+import { VChart, type ISpec } from '@visactor/react-vchart';
 import axios from 'axios';
 import useLocale from '@/utils/useLocale';
 import locale from './locale';
@@ -22,7 +22,7 @@ function PopularContent() {
 
   const total = data.reduce((a, b) => a + (b.count || 0), 0);
 
-  const spec = {
+  const spec: ISpec = {
     type: 'pie' as const,
     data: [{ id: 'donut', values: data }],
     valueField: 'count',
@@ -42,13 +42,22 @@ function PopularContent() {
       item: { shape: { style: { symbolType: 'circle' } } },
     },
     tooltip: {
-      mark: { content: [{ key: 'type', value: (d: Slice) => Number(d.count).toLocaleString() }] },
+      mark: {
+        content: [
+          {
+            key: 'type',
+            value: (d: Slice) => Number(d.count).toLocaleString(),
+          },
+        ],
+      },
     },
   };
 
   return (
     <Card>
-      <Typography.Title heading={6}>{t['workplace.contentPercentage']}</Typography.Title>
+      <Typography.Title heading={6}>
+        {t['workplace.contentPercentage']}
+      </Typography.Title>
       <Spin loading={loading} style={{ display: 'block' }}>
         <div style={{ position: 'relative' }}>
           <div style={{ width: '100%', height: 340 }}>

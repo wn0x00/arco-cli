@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { VChart } from '@visactor/react-vchart';
+import { VChart, type ISpec } from '@visactor/react-vchart';
 import { Spin } from '@arco-design/web-react';
 
 const radarColors = ['#313CA9', '#21CCFF', '#249EFF'];
@@ -26,7 +26,7 @@ function AreaPolar({ data, loading, fields, height }: AreaPolarProps) {
     return out;
   }, [data, fields]);
 
-  const spec = {
+  const spec: ISpec = {
     type: 'radar' as const,
     data: [{ id: 'radar', values: folded }],
     categoryField: 'item',
@@ -36,11 +36,23 @@ function AreaPolar({ data, loading, fields, height }: AreaPolarProps) {
     area: { visible: true, style: { fillOpacity: 0.25 } },
     line: { style: { lineWidth: 2 } },
     point: { visible: true, style: { size: 4 } },
-    axes: [{ orient: 'angle' }, { orient: 'radius', visible: false, min: 0, max: 80 }],
-    legends: { visible: true, orient: 'right', item: { shape: { style: { symbolType: 'circle' } } } },
+    axes: [
+      { orient: 'angle' },
+      { orient: 'radius', visible: false, min: 0, max: 80 },
+    ],
+    legends: {
+      visible: true,
+      orient: 'right',
+      item: { shape: { style: { symbolType: 'circle' } } },
+    },
     tooltip: {
       mark: {
-        content: [{ key: (d: { category: string }) => d.category, value: (d: { score: number }) => d.score }],
+        content: [
+          {
+            key: (d: { category: string }) => d.category,
+            value: (d: { score: number }) => String(d.score),
+          },
+        ],
       },
     },
   };

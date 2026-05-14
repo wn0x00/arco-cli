@@ -52,7 +52,7 @@ type DataType = {
   liveContents?: string;
   increaseComments?: string;
   growthRate?: string;
-  chartData?: { count?: number; date?: string }[];
+  chartData?: { count: number; date: string }[];
   down?: boolean;
 };
 
@@ -147,7 +147,7 @@ function Overview() {
           </Typography.Paragraph>
           <Link>{t['workplace.seeMore']}</Link>
         </div>
-        <OverviewAreaLine data={data.chartData} loading={loading} />
+        <OverviewAreaLine data={data.chartData ?? []} loading={loading} />
       </div>
     </Card>
   );

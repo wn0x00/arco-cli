@@ -1,4 +1,4 @@
-import { VChart } from '@visactor/react-vchart';
+import { VChart, type ISpec } from '@visactor/react-vchart';
 import { Spin } from '@arco-design/web-react';
 
 const stackColors = ['#81E2FF', '#00B2FF', '#246EFF'];
@@ -11,7 +11,7 @@ function MultiInterval({
   loading: boolean;
 }) {
   const values = data ?? [];
-  const spec = {
+  const spec: ISpec = {
     type: 'bar' as const,
     data: [{ id: 'stack', values }],
     xField: 'time',
@@ -21,14 +21,24 @@ function MultiInterval({
     color: stackColors,
     bar: { style: { cornerRadius: [2, 2, 0, 0] } },
     axes: [
-      { orient: 'left', label: { formatMethod: (v: number) => `${Number(v) / 1000}k` } },
+      {
+        orient: 'left',
+        label: { formatMethod: (v) => `${Number(v) / 1000}k` },
+      },
       { orient: 'bottom' },
     ],
-    legends: { visible: true, orient: 'bottom', item: { shape: { style: { symbolType: 'circle' } } } },
+    legends: {
+      visible: true,
+      orient: 'bottom',
+      item: { shape: { style: { symbolType: 'circle' } } },
+    },
     tooltip: {
       mark: {
         content: [
-          { key: (d: { name: string }) => d.name, value: (d: { count: number }) => Number(d.count).toLocaleString() },
+          {
+            key: (d: { name: string }) => d.name,
+            value: (d: { count: number }) => Number(d.count).toLocaleString(),
+          },
         ],
       },
     },

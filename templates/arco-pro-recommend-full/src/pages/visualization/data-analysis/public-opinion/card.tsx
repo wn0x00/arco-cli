@@ -1,13 +1,15 @@
 import { Skeleton, Statistic, Typography } from '@arco-design/web-react';
 import cs from 'classnames';
-import { VChart } from '@visactor/react-vchart';
+import { VChart, type ISpec } from '@visactor/react-vchart';
 import { IconArrowRise, IconArrowFall } from '@arco-design/web-react/icon';
 import styles from '../style/public-opinion.module.less';
 
 const { Title, Text } = Typography;
 
 export interface PublicOpinionCardProps {
-  key: string;
+  // React-reserved name — optional so the parent can destructure it out
+  // before spreading.
+  key?: string;
   title: string;
   chartData?: Array<{ x: number | string; y: number; name?: string }>;
   chartType: 'line' | 'interval' | 'pie';
@@ -20,8 +22,12 @@ export interface PublicOpinionCardProps {
 
 const sparkBox = { width: '100%', height: 80 } as const;
 
-function SimpleLine({ chartData }: { chartData: Array<{ x: number | string; y: number; name?: string }> }) {
-  const spec = {
+function SimpleLine({
+  chartData,
+}: {
+  chartData: Array<{ x: number | string; y: number; name?: string }>;
+}) {
+  const spec: ISpec = {
     type: 'line' as const,
     data: [{ id: 'spark', values: chartData ?? [] }],
     xField: 'x',
@@ -32,7 +38,8 @@ function SimpleLine({ chartData }: { chartData: Array<{ x: number | string; y: n
       style: {
         curveType: 'monotone',
         lineWidth: 3,
-        lineDash: (datum: { name?: string }) => (datum.name === '类目2' ? [8, 10] : []),
+        lineDash: (datum: { name?: string }) =>
+          datum.name === '类目2' ? [8, 10] : [],
       },
     },
     point: { visible: false },
@@ -50,16 +57,21 @@ function SimpleLine({ chartData }: { chartData: Array<{ x: number | string; y: n
   );
 }
 
-function SimpleInterval({ chartData }: { chartData: Array<{ x: number | string; y: number }> }) {
+function SimpleInterval({
+  chartData,
+}: {
+  chartData: Array<{ x: number | string; y: number }>;
+}) {
   const values = chartData ?? [];
-  const spec = {
+  const spec: ISpec = {
     type: 'bar' as const,
     data: [{ id: 'spark', values }],
     xField: 'x',
     yField: 'y',
     bar: {
       style: {
-        fill: (datum: { x: number | string }) => (Number(datum.x) % 2 === 0 ? '#2CAB40' : '#86DF6C'),
+        fill: (datum: { x: number | string }) =>
+          Number(datum.x) % 2 === 0 ? '#2CAB40' : '#86DF6C',
         cornerRadius: 999,
       },
     },
@@ -72,14 +84,16 @@ function SimpleInterval({ chartData }: { chartData: Array<{ x: number | string; 
     tooltip: { mark: { content: [{ key: 'x', value: 'y' }] } },
   };
   return (
-    <div style={sparkBox}>
-      {values.length > 0 && <VChart spec={spec} />}
-    </div>
+    <div style={sparkBox}>{values.length > 0 && <VChart spec={spec} />}</div>
   );
 }
 
-function SimplePie({ chartData }: { chartData: Array<{ name: string; count: number }> }) {
-  const spec = {
+function SimplePie({
+  chartData,
+}: {
+  chartData: Array<{ name: string; count: number }>;
+}) {
+  const spec: ISpec = {
     type: 'pie' as const,
     data: [{ id: 'spark', values: chartData ?? [] }],
     valueField: 'count',
@@ -88,7 +102,11 @@ function SimplePie({ chartData }: { chartData: Array<{ name: string; count: numb
     innerRadius: 0.7,
     outerRadius: 0.85,
     label: { visible: false },
-    legends: { visible: true, orient: 'right', item: { shape: { style: { symbolType: 'circle' } } } },
+    legends: {
+      visible: true,
+      orient: 'right',
+      item: { shape: { style: { symbolType: 'circle' } } },
+    },
     tooltip: { mark: { content: [{ key: 'name', value: 'count' }] } },
   };
   return (
@@ -99,7 +117,8 @@ function SimplePie({ chartData }: { chartData: Array<{ name: string; count: numb
 }
 
 function PublicOpinionCard(props: PublicOpinionCardProps) {
-  const { chartType, title, count, increment, diff, chartData, loading } = props;
+  const { chartType, title, count, increment, diff, chartData, loading } =
+    props;
   const className = cs(styles.card, styles[`card-${chartType}`]);
 
   return (
@@ -137,13 +156,25 @@ function PublicOpinionCard(props: PublicOpinionCardProps) {
       </div>
       <div className={styles.chart}>
         {loading ? (
-          <Skeleton text={{ rows: 3, width: Array(3).fill('100%') }} animation />
+          <Skeleton
+            text={{ rows: 3, width: Array(3).fill('100%') }}
+            animation
+          />
         ) : (
           <>
-            {chartType === 'interval' && <SimpleInterval chartData={chartData ?? []} />}
+            {chartType === 'interval' && (
+              <SimpleInterval chartData={chartData ?? []} />
+            )}
             {chartType === 'line' && <SimpleLine chartData={chartData ?? []} />}
             {chartType === 'pie' && (
-              <SimplePie chartData={(chartData ?? []) as unknown as Array<{ name: string; count: number }>} />
+              <SimplePie
+                chartData={
+                  (chartData ?? []) as unknown as Array<{
+                    name: string;
+                    count: number;
+                  }>
+                }
+              />
             )}
           </>
         )}

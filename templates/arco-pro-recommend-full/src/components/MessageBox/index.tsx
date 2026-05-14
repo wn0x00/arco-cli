@@ -28,14 +28,18 @@ function DropContent() {
   const [sourceData, setSourceData] = useState<MessageListType>([]);
 
   function fetchSourceData(showLoading = true) {
-    showLoading && setLoading(true);
+    if (showLoading) {
+      setLoading(true);
+    }
     axios
       .get('/api/message/list')
       .then((res) => {
         setSourceData(res.data);
       })
       .finally(() => {
-        showLoading && setLoading(false);
+        if (showLoading) {
+          setLoading(false);
+        }
       });
   }
 
@@ -57,7 +61,7 @@ function DropContent() {
   useEffect(() => {
     const groupData: { [key: string]: MessageListType } = groupBy(
       sourceData,
-      'type'
+      'type',
     );
     setGroupData(groupData);
   }, [sourceData]);
@@ -100,7 +104,7 @@ function DropContent() {
           }
         >
           {tabList.map((item) => {
-            const { key, title, avatar } = item;
+            const { key, title } = item;
             const data = groupData[key] || [];
             const unReadData = data.filter((item) => !item.status);
             return (

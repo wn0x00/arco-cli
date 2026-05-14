@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { VChart } from '@visactor/react-vchart';
+import { VChart, type ISpec } from '@visactor/react-vchart';
 import { Grid } from '@arco-design/web-react';
 
 const colors = ['#249EFF', '#846BCE', '#21CCFF', '#86DF6C', '#0E42D2'];
@@ -18,7 +18,7 @@ interface FactMultiPieProps {
 }
 
 function Donut({ rows, title }: { rows: Item[]; title: string }) {
-  const spec = {
+  const spec: ISpec = {
     type: 'pie' as const,
     data: [{ id: 'donut', values: rows }],
     valueField: 'value',
@@ -33,7 +33,9 @@ function Donut({ rows, title }: { rows: Item[]; title: string }) {
     legends: { visible: false },
     tooltip: {
       mark: {
-        content: [{ key: 'type', value: (d: Item) => `${(d.value * 100).toFixed(2)}%` }],
+        content: [
+          { key: 'type', value: (d: Item) => `${(d.value * 100).toFixed(2)}%` },
+        ],
       },
     },
   };

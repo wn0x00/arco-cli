@@ -1,4 +1,4 @@
-import { VChart } from '@visactor/react-vchart';
+import { VChart, type ISpec } from '@visactor/react-vchart';
 import { Spin } from '@arco-design/web-react';
 
 const lineStops = [
@@ -18,7 +18,7 @@ function OverviewAreaLine({
   data: Array<{ date: string; count: number }>;
   loading: boolean;
 }) {
-  const spec = {
+  const spec: ISpec = {
     type: 'area' as const,
     data: [{ id: 'overview', values: data ?? [] }],
     xField: 'date',
@@ -28,19 +28,45 @@ function OverviewAreaLine({
       style: {
         curveType: 'monotone',
         lineWidth: 3,
-        stroke: { gradient: 'linear', x0: 0, y0: 0.5, x1: 1, y1: 0.5, stops: lineStops },
+        stroke: {
+          gradient: 'linear',
+          x0: 0,
+          y0: 0.5,
+          x1: 1,
+          y1: 0.5,
+          stops: lineStops,
+        },
       },
     },
     area: {
       style: {
         curveType: 'monotone',
-        fill: { gradient: 'linear', x0: 0, y0: 0, x1: 0, y1: 1, stops: areaStops },
+        fill: {
+          gradient: 'linear',
+          x0: 0,
+          y0: 0,
+          x1: 0,
+          y1: 1,
+          stops: areaStops,
+        },
       },
     },
     point: { visible: false },
-    axes: [{ orient: 'left', label: { formatMethod: (v: number) => `${Number(v) / 1000}k` } }],
+    axes: [
+      {
+        orient: 'left',
+        label: { formatMethod: (v) => `${Number(v) / 1000}k` },
+      },
+    ],
     tooltip: {
-      mark: { content: [{ key: 'date', value: (d: { count: number }) => Number(d.count).toLocaleString() }] },
+      mark: {
+        content: [
+          {
+            key: 'date',
+            value: (d: { count: number }) => Number(d.count).toLocaleString(),
+          },
+        ],
+      },
     },
   };
 

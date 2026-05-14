@@ -68,15 +68,20 @@ function PublicOpinion() {
   return (
     <div>
       <Row gutter={20}>
-        {formatData.map((item, index) => (
-          <Col span={6} key={index}>
-            <PublicOpinionCard
-              {...item}
-              compareTime={t['dataAnalysis.yesterday']}
-              loading={loading}
-            />
-          </Col>
-        ))}
+        {formatData.map((item, index) => {
+          // Strip `key` from the spread — React 19 flags it as a
+          // misplaced React key.
+          const { key, ...rest } = item;
+          return (
+            <Col span={6} key={key ?? index}>
+              <PublicOpinionCard
+                {...rest}
+                compareTime={t['dataAnalysis.yesterday']}
+                loading={loading}
+              />
+            </Col>
+          );
+        })}
       </Row>
     </div>
   );

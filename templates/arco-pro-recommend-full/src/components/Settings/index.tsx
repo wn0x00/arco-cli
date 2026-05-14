@@ -10,7 +10,7 @@ import IconButton from '../NavBar/IconButton';
 import useLocale from '@/utils/useLocale';
 
 interface SettingProps {
-  trigger?: React.ReactElement;
+  trigger?: React.ReactElement<{ onClick?: () => void }>;
 }
 
 function Setting(props: SettingProps) {
@@ -27,7 +27,7 @@ function Setting(props: SettingProps) {
   return (
     <>
       {trigger ? (
-        React.cloneElement(trigger as React.ReactElement, {
+        React.cloneElement(trigger, {
           onClick: () => setVisible(true),
         })
       ) : (
